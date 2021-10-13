@@ -1,11 +1,15 @@
 char *mx_strcpy(char *dst, const char *src)
 {
     int i = 0;
-    for(; src[i] != '\0'; i++)
+    for (; *src; i++)
     {
-        dst[i] = src[i];
+        *dst++ = *src++;
     }
-    dst[i+1] = '\0';
+    for (; *dst; i++)
+    {
+        *dst++ = 0;
+    }
+    dst -= i;
     return dst;
 }
 

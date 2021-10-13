@@ -1,6 +1,6 @@
 #include <stdlib.h>
 char *mx_strnew(const int size) {
-    if (size < 1) {
+    if (size < 0) {
         return NULL;
     }
     else {

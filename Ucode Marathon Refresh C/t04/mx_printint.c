@@ -1,3 +1,4 @@
+#include <unistd.h>
 void mx_printchar(char c);
 void mx_printint(int n)
 {
@@ -6,6 +7,10 @@ void mx_printint(int n)
     if (n == 0) 
     {
         mx_printchar('0');
+        return;
+    }
+    if (n == -2147483648) {
+        write(1, "-2147483648", 11);
         return;
     }
     if (n < 0) {
@@ -30,5 +35,5 @@ void mx_printint(int n)
     {
         mx_printchar(x[i]);
     }
-} 
+}
 
