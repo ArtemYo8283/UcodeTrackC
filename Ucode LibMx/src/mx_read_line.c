@@ -1,6 +1,6 @@
 #include "libmx.h"
 
-int mx_read_line(char **lineptr, int buf_size, char delim, const int fd)
+int mx_read_line(char **lineptr, size_t buf_size, char delim, const int fd)
 {
     if (buf_size > 0 && buf_size < 2147483648)
     {
@@ -32,6 +32,7 @@ int mx_read_line(char **lineptr, int buf_size, char delim, const int fd)
             free(str);
             return index;
         }
+        return -2;
     }
     else
     {
