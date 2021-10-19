@@ -8,6 +8,6 @@ typedef struct  Path {
 } Paths;
 
 void add_Path(char ***str_p);
-char ***parse_str(char *filename);
+void parse_str(char *filename);
 void print_path(); //========================================
 

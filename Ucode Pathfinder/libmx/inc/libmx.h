@@ -6,7 +6,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <fcntl.h>
+#include <string.h>
 #define P_SIZE 8
+int mx_atoi(const char *str);
+bool mx_isdigit(int c);
 int open_f(const char *a);
 bool mx_isspace(char c);
 int mx_strncmp(const char *s1, const char *s2, int n);

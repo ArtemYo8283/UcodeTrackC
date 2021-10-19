@@ -11,13 +11,15 @@ int main(int argc, char *argv[])
     int file = open_f(argv[1]); //Open file
     if(file == -1)
     {
-        write(2, "error: file [filename] does not exist\n", 38);
+        write(2, "error: file ", 12);
+        write(2, argv[1], mx_strlen(argv[1]));
+        write(2, " does not exist\n", 16);
         return -1;
     }
     close(file); //Close file
     
-    char ***str_p_p = parse_str(argv[1]);
-    str_p_p = NULL;
+    parse_str(argv[1]);
+    
     // mx_printstr("==================\n");
     // for(int i = 0; i < 7; i++)
     // {
