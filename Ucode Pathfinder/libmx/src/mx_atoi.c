@@ -1,9 +1,9 @@
 #include "libmx.h"
 
-int mx_atoi(const char *str) {
+long mx_atoi(const char *str) {
     int sign = 0;
     int plus = 0;
-    int digit = 0;
+    long digit = 0;
     for (unsigned int i = 0; str[i]; ++i) {
         if (!mx_isspace(str[i])) {
             if (mx_isdigit(str[i])) { 
