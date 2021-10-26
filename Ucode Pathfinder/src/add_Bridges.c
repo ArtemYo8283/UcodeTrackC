@@ -1,8 +1,8 @@
 #include "pathfinder.h"
 
-Path *add_Paths(char ***str_p)
+Bridge *add_Bridges(char ***str_p)
 {
-    struct Path *paths = malloc((size - 1) * sizeof(Path));
+    struct Bridge *bridge = malloc((size - 1) * sizeof(Bridge));
 
     for(int i = 0; i < size - 1; i++)
     {
@@ -14,9 +14,9 @@ Path *add_Paths(char ***str_p)
             exit(-1);
         }
         char **aboba = mx_strsplit(str_p[i][0], '-');
-        struct Path tmp = {aboba[1], aboba[0], mx_atoi(str_p[i][1])};
-        paths[i] = tmp;
+        struct Bridge tmp = {aboba[1], aboba[0], mx_atoi(str_p[i][1])};
+        bridge[i] = tmp;
     }
-    return paths;
+    return bridge;
 }
 

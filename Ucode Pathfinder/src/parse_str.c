@@ -39,7 +39,30 @@ char*** parse_str(char *filename)
             exit(-1);
         }
     } 
-
+    for(int i = 1; i < size; i++) //Check
+    { 
+        int c1 = 0;
+        int c2 = 0;
+        for(int j = 0; j < size; j++)
+        {
+            if(str_p1[i][j] == ',')
+            {
+                c1++;
+            }
+            if(str_p1[i][j] == '-')
+            {
+                c2++;
+            }
+        }
+        if(c1 != 1 || c2 != 1)
+        {
+            write(2, "error: line ", 12);
+            write(2, mx_itoa(i+1), mx_strlen(mx_itoa(i+1)));
+            write(2, " is not valid\n", 14);
+            exit(-1);
+        }
+    }
+    
     char*** stri = (char***)malloc(size);   //Set memmory for 3D array
     for (int i = 0; i < size; i++)
     {
