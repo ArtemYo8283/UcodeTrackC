@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     // }
 
     struct Path *pathes = create_routes(bridges);
-
+    //pathes = NULL;
     print_path(pathes);
     return 0;
 }

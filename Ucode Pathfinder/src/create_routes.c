@@ -50,12 +50,8 @@ Path* create_routes(Bridge *bridges)
     
     for(int i = 0; i < countIsl; i++)
     {
-        mx_printint(i);
-        
         for(int j = i + 1; j < countIsl; j++)
         {
-            mx_printchar(' ');
-            mx_printint(i);
             for(int k = 0; k < size - 1; k++)
             {
                 if(
@@ -70,19 +66,42 @@ Path* create_routes(Bridge *bridges)
                     struct Path tmp = {Names[i], Names[j], tmp1, 1};
                     pathes[P_size - 1] = tmp;
                 }
-                if((mx_strcmp(bridges[k].I1, Names[i]) == 0 && mx_strcmp(bridges[k].I2, Names[j]) != 0) || (mx_strcmp(bridges[k].I1, Names[j]) == 0 && mx_strcmp(bridges[k].I2, Names[i]) != 0))
+            }
+            char* tmp1 = (char*)malloc(mx_strlen(Names[i]));
+            char* tmp2 = (char*)malloc(mx_strlen(Names[j]));
+            tmp1 = mx_strcpy(tmp1, Names[i]);
+            tmp2 = mx_strcpy(tmp2, Names[j]);
+            struct Bridge *tmpB = malloc((countIsl * 2 -1) * sizeof(Bridge));
+            int sizetmpB = 0;
+            for(int k = 0; k < size - 1; k++) // Не существующий путь А - Д
+            {
+                if((mx_strcmp(bridges[k].I1, tmp1) == 0 && mx_strcmp(bridges[k].I2, tmp2) != 0))
                 {
-                    // int ct = 0;
-                    // struct Bridge *tmp2 = malloc((countIsl - 1) * sizeof(Bridge));
-                    // for(int l = 0; l < countIsl - 1; l++)
-                    // {
-                        
-                    // }   
+                    sizetmpB++;
+                    tmpB[sizetmpB - 1] = bridges[k];    
+                    tmp1 = mx_strcpy(tmp1, bridges[k].I2);
+                }
+                else if(mx_strcmp(bridges[k].I1, tmp2) != 0 && mx_strcmp(bridges[k].I2, Names[i]) == 0)
+                {
+                    sizetmpB++;
+                    tmpB[sizetmpB - 1] = bridges[k];    
+                    tmp1 = mx_strcpy(tmp1, bridges[k].I1);
+                }
+                else if(
+                    (mx_strcmp(bridges[k].I1, tmp1) == 0 && mx_strcmp(bridges[k].I2, tmp2) == 0) ||
+                    (mx_strcmp(bridges[k].I1, tmp2) == 0 && mx_strcmp(bridges[k].I2, tmp1) == 0)
+                    )
+                {
+                    P_size++;
+                    pathes = realloc(pathes, P_size * sizeof(Path));
+                    struct Path tmp = {Names[i], Names[j], tmpB, sizetmpB};
+                    pathes[P_size - 1] = tmp;
+                    break;
                 }
             }
         }
-        mx_printchar('\n');
     }
     return pathes;
 }
+
 
