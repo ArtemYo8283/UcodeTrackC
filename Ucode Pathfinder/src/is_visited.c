@@ -1,10 +1,10 @@
 #include "pathfinder.h"
 
-bool is_visited(char **visited, char *s, int visits)
+bool is_visited(char **visited, char *visit, int visits)
 {
     for (int i = 0; i < visits; i++)
     {
-        if (!mx_strcmp(visited[i], s)) 
+        if (!mx_strcmp(visited[i], visit)) 
         {
             return true;
         }

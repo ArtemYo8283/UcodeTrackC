@@ -22,7 +22,7 @@ char*** parse_str(char *filename)
             exit(-1);
         }
     }
-    countIsl = atoi(str_p1[0]);
+    countIsl = mx_atoi(str_p1[0]);
     if(countIsl < 1)
     {
         write(2, "error: line 1 is not valid\n", 27);
@@ -43,7 +43,7 @@ char*** parse_str(char *filename)
     { 
         int c1 = 0;
         int c2 = 0;
-        for(int j = 0; j < size; j++)
+        for(int j = 0; j < mx_strlen(str_p1[i]); j++)
         {
             if(str_p1[i][j] == ',')
             {
@@ -76,7 +76,7 @@ char*** parse_str(char *filename)
     for(int i = 1; i < size; i++)
     {
         id = -1;
-        for(int j = 0; j < size; j++)
+        for(int j = 0; j < mx_strlen(str_p1[i]); j++)
         {
             if(str_p1[i][j] == ',')
             {
@@ -95,6 +95,7 @@ char*** parse_str(char *filename)
     {
         stri[j] = mx_strsplit(str_p1[i], ',');
     }
+    mx_del_strarr(&str_p1);
     return stri;
 }
 

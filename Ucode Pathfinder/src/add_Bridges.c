@@ -14,6 +14,8 @@ Bridge *add_Bridges(char ***str_p)
             exit(-1);
         }
         char **aboba = mx_strsplit(str_p[i][0], '-');
+        mx_str_reverse(aboba[0]);
+        mx_str_reverse(aboba[1]);
         struct Bridge tmp = {aboba[1], aboba[0], mx_atoi(str_p[i][1])};
         bridge[i] = tmp;
     }

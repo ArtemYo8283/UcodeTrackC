@@ -16,7 +16,7 @@ void checkIsl(Bridge *bridge)
         }
         for(int j = 0; j < mx_strlen(bridge[i].I2); j++)
         {
-            if(!mx_isalpha(bridge[i].I1[j]))
+            if(!mx_isalpha(bridge[i].I2[j]))
             {
                 write(2, "error: line ", 12);
                 write(2, mx_itoa(i+2), mx_strlen(mx_itoa(i+2)));
@@ -24,7 +24,7 @@ void checkIsl(Bridge *bridge)
                 exit(-1);
             }
         }
-        if(strcmp(bridge[i].I1, bridge[i].I2) == 0)
+        if(mx_strcmp(bridge[i].I1, bridge[i].I2) == 0)
         {
             write(2, "error: line ", 12);
             write(2, mx_itoa(i+2), mx_strlen(mx_itoa(i+2)));
