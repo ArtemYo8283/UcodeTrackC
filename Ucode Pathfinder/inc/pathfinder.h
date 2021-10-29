@@ -7,15 +7,8 @@ typedef struct Bridge {
     int Distance;
 } Bridge;
 
-typedef struct Path {
-    char* I1;
-    char* I2;
-    Bridge* Bridges;
-    int count;
-} Path;
-
 Bridge *add_Bridges(char ***str_p);
-Path* create_routes(Bridge *bridges);
+void create_routes(Bridge *bridges);
 char ***parse_str(char *filename);
 
 //check errors
@@ -24,8 +17,14 @@ void BridgeDup(char ***str_p);
 void checkDist(char ***str_p);
 void checkIsl(Bridge *bridges);
 
+int get_weight(char **nodes, int *weights, char *s);
+void set_weight(int **weights, char **nodes, char *s, int w);
 
-void print_path(Path* paths); //========================================
+void weight(int *weights, char **nodes, Bridge *bridges, int count);
+int get_node_index(char **nodes, char *node);
+bool is_visited(char **visited, char *s, int visits);
+
+void print_path(char *I1, char *I2, char** Bridges, int *Distance, int count);
 
 int size;
 int countIsl;

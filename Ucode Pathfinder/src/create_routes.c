@@ -1,17 +1,130 @@
 #include "pathfinder.h"
-
-Path* create_routes(Bridge *bridges)
+bool is_blacklisted(int c, int *blacklist, int size)
 {
-    P_size = 0;
-    struct Path *pathes = malloc(P_size * sizeof(Path));
+    for (int i = 0; i < size; i++)
+    {
+        if (blacklist[i] == c)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
+int get_path(int *len, int *weights, char **nodes, Bridge *bridges, int count, char *from, char **path, int *blacklist, int *blked, int *permblkd)
+{
+    int cur_len = 0;
+    int cur_weight = -1;
+    int from_weight = 0;
+    int steps = 1;
+    char *cur_node = from;
+    int prev_bridge_i = -1;
+    path[0] = from;
+    int needed_bridge = -1;
+    bool break_flag = true;
+    bool fell = true;
+    for (int j = 0; j < count + 1 && break_flag; j++)
+    {
+        fell = true;
+        from_weight = get_weight(nodes, weights, from);
+        for (int i = 0; i < size - 1; i++)
+        {
+            if (is_blacklisted(i, blacklist, *blked)) continue;
+            if (!mx_strcmp(bridges[i].I1, from))
+            {
+                cur_node = bridges[i].I2;
+                cur_weight = get_weight(nodes, weights, bridges[i].I2);
+                cur_len = bridges[i].Distance;
+            }
+            else if (!mx_strcmp(bridges[i].I2, from))
+            {
+                cur_node = bridges[i].I1;
+                cur_weight = get_weight(nodes, weights, bridges[i].I1);
+                cur_len = bridges[i].Distance;
+            }
+            else continue;
+            if (from_weight < cur_len) continue;
+            if (cur_weight == 0)
+            {
+                blacklist[*blked] = i;
+                *blked += 1;
+                path[steps] = cur_node;
+                len[steps - 1] = cur_len;
+                steps++;
+                break_flag = false;
+                fell = false;
+                needed_bridge = i;
+                break;
+            }
+            if (from_weight - cur_len == cur_weight)
+            {
+                prev_bridge_i = i;
+                len[steps - 1] = cur_len;
+                from = cur_node;
+                path[steps] = from;
+                steps++;
+                fell = false;
+                break;
+            }
+        } 
+        if (fell)
+        {
+            if (!mx_strcmp(from, path[0]))
+            {
+                return -1;
+            }
+            j = 0;
+            from = path[0];
+            steps = 1;
+            blacklist[*blked] = prev_bridge_i;
+            *blked += 1;
+            if (!mx_strcmp(bridges[prev_bridge_i].I1, path[0])
+                || !mx_strcmp(bridges[prev_bridge_i].I2, path[0]))
+            {
+                blacklist[*permblkd] = prev_bridge_i;
+                *permblkd += 1;
+                *blked = *permblkd;
+            }
+        }
+        if (!break_flag && (!mx_strcmp(bridges[needed_bridge].I1, path[0])
+            || !mx_strcmp(bridges[needed_bridge].I2, path[0])))
+        {
+            blacklist[*permblkd] = needed_bridge;
+            *permblkd += 1;
+            *blked = *permblkd;
+        }
+    }
+    path[steps] = NULL;
+    return steps;
+}
+
+void tmp(int *weights, char **Names, Bridge *bridges, int count, char *from, int bridge_count)
+{
+    int *len = malloc(count * sizeof *len);
+    char **path = malloc((count + 1) * sizeof *path);
+    path[count] = NULL;
+    int *blacklist = malloc(bridge_count * sizeof *blacklist);
+    int perm_blocked = 0;
+    int steps = 0;
+    int blocked = 0;
+    while (true)
+    {
+        steps = get_path(len, weights, Names, bridges, count, from, path, blacklist, &blocked, &perm_blocked);
+        if (steps == -1) 
+        {
+            break;
+        }   
+        print_path(path[0], path[steps - 1], path, len, steps);
+    }
+}
+void create_routes(Bridge *bridges)
+{
     char **Names = (char**)malloc(countIsl);
     int h = 0;
     for(int i = 0; i < countIsl; i++)
     {
         Names[i] = (char*)malloc(256); 
     }
-
     Names[0] = bridges[0].I1;
     for(int i = 1; i < size - 1; i++)
     {
@@ -47,61 +160,21 @@ Path* create_routes(Bridge *bridges)
             Names[h] = bridges[i].I2;
         }   
     }
-    
-    for(int i = 0; i < countIsl; i++)
+    int *weights = malloc((countIsl + 1) * sizeof(int));
+    for (int i = 0; i < countIsl - 1; i++)
     {
-        for(int j = i + 1; j < countIsl; j++)
+        for (int j = i + 1; j < countIsl; j++)
         {
-            for(int k = 0; k < size - 1; k++)
+            for (int z = 0; z < countIsl; z++) 
             {
-                if(
-                    (mx_strcmp(bridges[k].I1, Names[i]) == 0 && mx_strcmp(bridges[k].I2, Names[j]) == 0) ||
-                    (mx_strcmp(bridges[k].I1, Names[j]) == 0 && mx_strcmp(bridges[k].I2, Names[i]) == 0)
-                )
-                {
-                    P_size++;
-                    pathes = realloc(pathes, P_size * sizeof(Path));
-                    struct Bridge *tmp1 = malloc(1 * sizeof(Bridge));
-                    tmp1[0] = bridges[k];
-                    struct Path tmp = {Names[i], Names[j], tmp1, 1};
-                    pathes[P_size - 1] = tmp;
-                }
+                weights[z] = -1;
             }
-            char* tmp1 = (char*)malloc(mx_strlen(Names[i]));
-            char* tmp2 = (char*)malloc(mx_strlen(Names[j]));
-            tmp1 = mx_strcpy(tmp1, Names[i]);
-            tmp2 = mx_strcpy(tmp2, Names[j]);
-            struct Bridge *tmpB = malloc((countIsl * 2 -1) * sizeof(Bridge));
-            int sizetmpB = 0;
-            for(int k = 0; k < size - 1; k++) // Не существующий путь А - Д
-            {
-                if((mx_strcmp(bridges[k].I1, tmp1) == 0 && mx_strcmp(bridges[k].I2, tmp2) != 0))
-                {
-                    sizetmpB++;
-                    tmpB[sizetmpB - 1] = bridges[k];    
-                    tmp1 = mx_strcpy(tmp1, bridges[k].I2);
-                }
-                else if(mx_strcmp(bridges[k].I1, tmp2) != 0 && mx_strcmp(bridges[k].I2, Names[i]) == 0)
-                {
-                    sizetmpB++;
-                    tmpB[sizetmpB - 1] = bridges[k];    
-                    tmp1 = mx_strcpy(tmp1, bridges[k].I1);
-                }
-                else if(
-                    (mx_strcmp(bridges[k].I1, tmp1) == 0 && mx_strcmp(bridges[k].I2, tmp2) == 0) ||
-                    (mx_strcmp(bridges[k].I1, tmp2) == 0 && mx_strcmp(bridges[k].I2, tmp1) == 0)
-                    )
-                {
-                    P_size++;
-                    pathes = realloc(pathes, P_size * sizeof(Path));
-                    struct Path tmp = {Names[i], Names[j], tmpB, sizetmpB};
-                    pathes[P_size - 1] = tmp;
-                    break;
-                }
-            }
+            set_weight(&weights, Names, Names[j], 0);
+            weight(weights, Names, bridges, countIsl);
+            tmp(weights, Names, bridges, countIsl, Names[i], (size - 1));
+
         }
     }
-    return pathes;
 }
 
 

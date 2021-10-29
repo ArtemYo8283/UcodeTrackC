@@ -47,9 +47,7 @@ int main(int argc, char *argv[])
     //     mx_printstr("========================================\n");
     // }
 
-    struct Path *pathes = create_routes(bridges);
-    //pathes = NULL;
-    print_path(pathes);
+    create_routes(bridges);
     return 0;
 }
 
