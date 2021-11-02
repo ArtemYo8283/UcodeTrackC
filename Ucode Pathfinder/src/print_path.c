@@ -8,7 +8,7 @@ void print_path(char *I1, char *I2, char** Bridges, int *Distance, int count)
     mx_printstr(" -> ");
     mx_printstr(I2);
     mx_printchar('\n');
-    if(count == 2)
+    if(count == 2) // If one bridge
     {
         mx_printstr("Route: ");
         mx_printstr(I1);
@@ -19,7 +19,7 @@ void print_path(char *I1, char *I2, char** Bridges, int *Distance, int count)
         mx_printint(Distance[0]); 
         mx_printchar('\n');
     }
-    else
+    else // If two or more bridges
     {
         int sum = 0;
         mx_printstr("Route: ");

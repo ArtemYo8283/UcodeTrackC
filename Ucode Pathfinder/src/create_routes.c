@@ -1,5 +1,6 @@
 #include "pathfinder.h"
 
+
 void create_routes(Bridge *bridges)
 {
     char **Names = (char**)malloc(countIsl);
@@ -45,36 +46,67 @@ void create_routes(Bridge *bridges)
             Names[h - 1] = bridges[i].I2;
         } 
     }
+    bridges = sort_bridges(bridges, Names);
+    int **matrix = malloc(countIsl * sizeof(int*));
+    for (int i = 0; i < countIsl; i++)
+    {
+        matrix[i] = malloc(countIsl * sizeof(int));
+        for (int j = 0; j < countIsl; j++)
+        {
+            matrix[i][i] = 0;
+        }
+    }
+    for(int i = 0; i < countIsl; i++)
+    {
+        matrix[i][i] = -1;
+    }
+
+    for (int i = 0; i < countIsl - 1; i++)
+    {
+        int tmp;
+        for (int j = i + 1; j < countIsl; j++)
+        { 
+            tmp = get_dist_by_isl(bridges, Names[i], Names[j]);
+            matrix[i][j] = tmp;
+            matrix[j][i] = tmp;
+        }
+    }
     int *weights = malloc((countIsl + 1) * sizeof(int));
     for (int i = 0; i < countIsl - 1; i++)
     {
         for (int j = i + 1; j < countIsl; j++)
         {
-            for (int z = 0; z < countIsl; z++) 
+            for (int h = 0; h < countIsl; h++) 
             {
-                weights[z] = -1;
+                weights[h] = -1;
             }
-            set_weight(&weights, Names, Names[j], 0);
-            weight(weights, Names, bridges, countIsl);
-            int *len = (int *)malloc(countIsl);
-            char **path = malloc((countIsl + 1) * sizeof(*path));
-            path[countIsl] = NULL;
-            int *bl = (int *)malloc(size - 1);
-            int blockedAlways = 0;
-            int steps = 0;
-            int blocked = 0;
-            while (true)
+            for (int h = 0; h < countIsl; h++)
             {
-                steps = get_path(len, weights, Names, bridges, countIsl, Names[i], path, bl, &blocked, &blockedAlways);
-                if (steps == -1) 
+                if (!mx_strcmp(Names[h], Names[j]))
+                {
+                    weights[h] = 0;
+                    break;
+                }
+            }
+            weight(weights, Names, bridges);
+            int *len = (int *)malloc(countIsl);
+            int *bl = (int *)malloc(size - 1);
+            char **path = malloc((countIsl + 1) * sizeof(*path));
+            int blAlways = 0;
+            int count_i = 0;
+            int blocked = 0;
+            for (;;)
+            {
+                count_i = get_route(len, weights, Names, bridges, Names[i], path, bl, &blocked, &blAlways);
+                if (count_i == -1) 
                 {
                     break;
-                }   
-                print_path(path[0], path[steps - 1], path, len, steps);
+                }  
+                else
+                {
+                    print_path(path[0], path[count_i - 1], path, len, count_i);
+                }
             }
-            free(len);
-            free(path);
-            free(bl);
         }
     }
 }
