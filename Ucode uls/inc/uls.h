@@ -27,7 +27,7 @@
 #define LS_COLOR_RED        "\x1b[31m"
 #define LS_COLOR_RESET      "\x1b[0m"
 
-typedef struct fl {
+typedef struct Flag {
     int l;
     int C;
     int x;
@@ -41,13 +41,13 @@ typedef struct fl {
     int A;
     int force;
     int m;
-    int files;
+    int Flags;
     int G;
     int T;
     int g;
     int o;
     int ex;
-}   st_fl;
+}   Flag;
 
 typedef struct s_sz {
     int lnk;
@@ -72,7 +72,7 @@ typedef struct n_type {
     int i;
 }   s_type;
 
-st_fl *get_flags(char *argv[], int *i);
+Flag *get_flags(char *argv[], int *i);
 
 void mx_join(char **res, char *s2);
 void mx_printstr_g(t_li *args);
@@ -81,22 +81,22 @@ void mx_print_tab(int len, int maxlen);
 void mx_del_arr_arr(t_li ***args);
 
 t_li **mx_get_names(int argc, char **argv, int i);
-void mx_opendir(t_li ***names, st_fl *fl);
-void mx_out_put_all(t_li ***args, st_fl *fl);
-void mx_sort(t_li ***disp, st_fl *fl);
-t_li **mx_get_files(t_li ***args, st_fl *fl);
+void mx_opendir(t_li ***names, Flag *fl);
+void mx_out_put_all(t_li ***args, Flag *fl);
+void mx_sort(t_li ***disp, Flag *fl);
+t_li **mx_get_Flags(t_li ***args, Flag *fl);
 // Output
-void mx_out_put_menu(t_li ***names, st_fl *fl, int flag);
-void mx_out_err(t_li ***error, st_fl *fl);
+void mx_out_put_menu(t_li ***names, Flag *fl, int flag);
+void mx_out_err(t_li ***error, Flag *fl);
 void mx_output_x(t_li **names);
 void mx_output_c(t_li **names);
-void mx_output_m(t_li **names, st_fl *fl);
-void mx_output_g(t_li **names, st_fl *fl);
-void mx_long_out(t_li **names, st_fl *fl, int flag);
+void mx_output_m(t_li **names, Flag *fl);
+void mx_output_g(t_li **names, Flag *fl);
+void mx_long_out(t_li **names, Flag *fl, int flag);
 
 void mx_print_per(t_li *print);
 void mx_print_sz(t_li *print, t_sz *size);
 void mx_print_symblink(t_li *print);
-void mx_print_all(t_li *print, t_sz *size, st_fl *fl);
+void mx_print_all(t_li *print, t_sz *size, Flag *fl);
 
 

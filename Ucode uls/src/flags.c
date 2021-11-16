@@ -1,6 +1,6 @@
 #include <uls.h>
 
-void add_flags(st_fl **fl, char flag)
+void add_flags(Flag **fl, char flag)
 {
     if (flag == 'T')
     {
@@ -63,43 +63,44 @@ void add_flags(st_fl **fl, char flag)
             (*fl)->C = 0;
             (*fl)->m = 0;
             (*fl)->force = 0;
-            if (flag == 'l')
+            switch(flag)
             {
-                (*fl)->l = 1;
-            }
-            else if (flag == 'C')
-            {
-                (*fl)->C = 1;
-            }
-            else if (flag == '1')
-            {
-                (*fl)->force = 1;
-            }
-            else if (flag == 'x')
-            {
-                (*fl)->x = 1;
-            }
-            else if (flag == 'm')
-            {
-                (*fl)->m = 1;
-            }
-            else
-            {
-                write(2, "uls: illegal option -- ", 24);
-                write(2, &flag, 1);
-                write(2, "\n", 2);
-                write(2, "usage: uls [-ACGRSTcfglmortux1] [file ...]\n", 44);
-                free(*fl);
-                fl = NULL;
-                exit(1);
+                case 'l':
+                    (*fl)->l = 1;
+                break;
+                
+                case 'C':
+                    (*fl)->C = 1;
+                break;
+
+                case '1':
+                    (*fl)->force = 1;
+                break;
+
+                case 'x':
+                    (*fl)->x = 1;
+                break;
+
+                case 'm':
+                    (*fl)->m = 1;
+                break;
+
+                default:
+                    write(2, "uls: illegal option -- ", 24);
+                    write(2, &flag, 1);
+                    write(2, "\nusage: uls [-ACGRSTcfglmortux1] [file ...]\n", 45);
+                    free(*fl);
+                    fl = NULL;
+                    exit(1);
+                break;
             }
         }
     }
 } 
 
-st_fl *get_flags(char *argv[], int *i)
+Flag *get_flags(char *argv[], int *i)
 {
-    st_fl *fl = malloc(sizeof(st_fl));
+    Flag *fl = malloc(sizeof(Flag));
     fl->r = 1;
     while(argv[(*i)])
     {
@@ -110,7 +111,7 @@ st_fl *get_flags(char *argv[], int *i)
                 (*i)++;
                 break;
             }
-            if (argv[(*i)][1] == '\0')
+            else if (argv[(*i)][1] == '\0')
             {
                 break;
             }

@@ -62,7 +62,7 @@ void mx_get_group_name(t_li *print, int group)
     free(name);
 }
 
-void print_link_and_color(t_li *print, st_fl *fl)
+void print_link_and_color(t_li *print, Flag *fl)
 {
     if (fl->G == 1)
     {
@@ -79,12 +79,11 @@ void print_link_and_color(t_li *print, st_fl *fl)
     }
 }
 
-void mx_edit_time(t_li *print, char *t, st_fl *fl)
+void mx_edit_time(t_li *print, char *t, Flag *fl)
 {
-    int i = 0;
     if (fl->T == 1)
     {
-        for (i = 4; i < t[i]; i++)
+        for (int i = 4; i < t[i]; i++)
         {
            mx_printchar(t[i]); 
         }
@@ -93,19 +92,19 @@ void mx_edit_time(t_li *print, char *t, st_fl *fl)
     {
         if (1565913600 >= print->info.st_mtime)
         {
-            for(i = 4; i < 10; i++)
+            for(int i = 4; i < 10; i++)
             {
                 mx_printchar(t[i]);
             }
             mx_printstr("  ");
-            for (i = 20; i < 24; i++)
+            for (int i = 20; i < 24; i++)
             {
                 mx_printchar(t[i]); 
             }
         }
         else
         {
-            for(i = 4; i < 16; i++)
+            for(int i = 4; i < 16; i++)
             {
                 mx_printchar(t[i]);
             }
@@ -154,7 +153,7 @@ void mx_print_symblink(t_li *print)
     mx_strdel(&buf);
 }
 
-void mx_print_all(t_li *print, t_sz *size, st_fl *fl)
+void mx_print_all(t_li *print, t_sz *size, Flag *fl)
 {
     time_t *chtime = &print->info.st_ctime;
     time_t *atime = &print->info.st_atime;
@@ -195,21 +194,22 @@ int print_frst(t_li *args)
     {
         mx_printstr("\033[34m");
         print_name(args);
-        return 1;
     }
     else if (IS_LNK(args->info.st_mode))
     {
         mx_printstr("\033[35m");
         print_name(args);
-        return 1;
     }
     else if (args->info.st_mode & S_IXOTH)
     {
         mx_printstr(LS_COLOR_RED);
-        print_name(args);
-        return 1;
+        print_name(args); 
     }
-    return 0;
+    else
+    {
+        return 0;
+    }
+    return 1;
 }
 
 int print_sec(t_li *args)
@@ -218,30 +218,29 @@ int print_sec(t_li *args)
     {
         mx_printstr("\033[34;46m");
         print_name(args);
-        return 1;
     }
     else if (IS_CHR(args->info.st_mode))
     {
         mx_printstr("\033[34;43m");
         print_name(args);
-        return 1;
     }
     else if (IS_SOCK(args->info.st_mode))
     {
         mx_printstr("\033[32m");
-        print_name(args);
-        return 1;
+        print_name(args); 
     }
-    return 0;
+    else
+    {
+        return 0;
+    }
+    return 1;
 }
 
 void mx_printstr_g(t_li *args)
 {
-    if (print_frst(args) == 1)
+    if (print_frst(args) == 1 || print_sec(args) == 1)
     {
-    }
-    else if (print_sec(args) == 1)
-    {
+        return;
     }
     else if (IS_FIFO(args->info.st_mode))
     {
@@ -264,19 +263,19 @@ void mx_printstr_g(t_li *args)
     }
 }
 
-char mx_get_file_acl(t_li *print)
+char mx_get_Flag_acl(t_li *print)
 {
     acl_t tmp;
     if (listxattr(print->path, NULL, 0, XATTR_NOFOLLOW) > 0)
     {
-        return ('@');
+        return '@';
     }
     if ((tmp = acl_get_file(print->path, ACL_TYPE_EXTENDED)))
     {
         acl_free(tmp);
-        return ('+');
+        return '+';
     }
-    return (' ');
+    return ' ';
 }
 
 char mx_check_per(t_li *print)
@@ -285,27 +284,27 @@ char mx_check_per(t_li *print)
     {
         return 'd';
     }
-    if (IS_LNK(print->info.st_mode))
+    else if (IS_LNK(print->info.st_mode))
     {
         return 'l';
     }
-    if (IS_BLK(print->info.st_mode))
+    else if (IS_BLK(print->info.st_mode))
     {
         return 'b';
     }
-    if (IS_CHR(print->info.st_mode))
+    else if (IS_CHR(print->info.st_mode))
     {
         return 'c';
     }
-    if (IS_FIFO(print->info.st_mode))
+    else if (IS_FIFO(print->info.st_mode))
     {
         return 'p';
     }
-    if (IS_SOCK(print->info.st_mode))
+    else if (IS_SOCK(print->info.st_mode))
     {
         return 's';
     }
-    if (IS_WHT(print->info.st_mode))
+    else if (IS_WHT(print->info.st_mode))
     {
         return 'w';
     }
@@ -349,7 +348,7 @@ void mx_print_per(t_li *print)
     chmod[7] = (S_IROTH & print->info.st_mode) ? 'r' : '-';
     chmod[8] = (S_IWOTH & print->info.st_mode) ? 'w' : '-';
     chmod[9] = (S_IXOTH & print->info.st_mode) ? 'x' : '-';
-    chmod[10] = mx_get_file_acl(print);
+    chmod[10] = mx_get_Flag_acl(print);
     chmod[11] = '\0';
     S_ISUID & print->info.st_mode ? chmod[3] = check_chmode1(chmod[3]) : 0;
     S_ISGID & print->info.st_mode ? chmod[6] = check_chmode1(chmod[6]) : 0;
@@ -380,14 +379,7 @@ char *mx_get_minor(t_li *print)
 {
     int minor_num = (int)(print->info.st_rdev & 0xffffff);
     char *minor = NULL;
-    if (minor_num > 255)
-    {
-        minor = minor_to_hex(mx_nbr_to_hex(minor_num));
-    }
-    else
-    {
-        minor = mx_itoa(minor_num);
-    }
+    minor = (minor_num > 255) ? minor_to_hex(mx_nbr_to_hex(minor_num)) : mx_itoa(minor_num);
     return minor;
 }
 
@@ -428,14 +420,13 @@ void mx_print_sz(t_li *print, t_sz *size)
 {
     char *res_now = mx_itoa(print->info.st_size);
     char *res_sz = mx_itoa(size->sz);
-    int counter = 0;
     if (mx_strlen(res_now) == mx_strlen(res_sz))
     {
         print_duo_cases(print, size);
     }
     else if (mx_strlen(res_now) < mx_strlen(res_sz))
     {
-        counter = mx_strlen(res_now);
+        int counter = mx_strlen(res_now);
         while (counter != mx_strlen(res_sz))
         {
             mx_printchar(' ');
@@ -448,38 +439,34 @@ void mx_print_sz(t_li *print, t_sz *size)
     free(res_sz);
 }
 
-char *check_grp(t_li *total) {
-    struct group *grp = NULL;
+char *check_grp(t_li *total)
+{
+    struct group *grp = getgrgid(total->info.st_gid);
     char *name = NULL;
-    
-    grp = getgrgid(total->info.st_gid);
     if (grp)
     {
-        name = mx_strdup(grp->gr_name);
-        return name;
+        name = mx_strdup(grp->gr_name);   
     }
     else
     {
         name = mx_itoa(total->info.st_gid);
-        return name;
     }
+    return name;
 }
 
 char *check_pw(t_li *total)
 {
-    struct passwd *pw = NULL;
+    struct passwd *pw = getpwuid(total->info.st_uid);
     char *name = NULL;
-    pw = getpwuid(total->info.st_uid);
     if (pw)
     {
-        name = mx_strdup(pw->pw_name);
-        return name;
+        name = mx_strdup(pw->pw_name);  
     }
     else
     {
-        name = mx_itoa(total->info.st_uid);
-        return name;    
+        name = mx_itoa(total->info.st_uid);   
     }
+    return name;
 }
 
 void count_size(t_sz *size, t_li *total)
@@ -506,14 +493,6 @@ void count_size(t_sz *size, t_li *total)
     free(name_pw);
 }
 
-void size_null(t_sz *size)
-{
-    size->lnk = 0;
-    size->sz = 0;
-    size->group = 0;
-    size->usr = 0;
-}
-
 bool mx_check_device(t_li **names, t_sz *size)
 {
     for (int i = 0; names[i]; i++)
@@ -529,7 +508,7 @@ bool mx_check_device(t_li **names, t_sz *size)
 void mx_del_liarr(t_li ***args, t_li **dirs)
 {
     t_li **del_arr = *args;
-    for (int i = 0; del_arr[i]!= NULL; i++)
+    for (int i = 0; del_arr[i] != NULL; i++)
     {
         mx_strdel(&del_arr[i]->name);
         mx_strdel(&del_arr[i]->path);
@@ -544,13 +523,15 @@ void mx_del_liarr(t_li ***args, t_li **dirs)
     *args = dirs;
 }
 
-void mx_long_out(t_li **names, st_fl *fl, int flag)
+void mx_long_out(t_li **names, Flag *fl, int flag)
 {
     t_sz *size = malloc(sizeof(t_sz));
     int blk_size = 0;
-    int i = 0;
-    size_null(size);
-    for (i = 0; names[i]; i++)
+    size->lnk = 0;
+    size->sz = 0;
+    size->group = 0;
+    size->usr = 0;
+    for (int i = 0; names[i]; i++)
     {
         blk_size += names[i]->info.st_blocks;
         count_size(size, names[i]);
@@ -562,7 +543,7 @@ void mx_long_out(t_li **names, st_fl *fl, int flag)
         mx_printchar('\n');
     }
     mx_check_device(names, size);
-    for (i = 0; names[i]; i++)
+    for (int i = 0; names[i]; i++)
     {
         mx_print_all(names[i], size, fl);
     }

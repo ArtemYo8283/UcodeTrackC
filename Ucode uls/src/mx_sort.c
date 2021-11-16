@@ -1,6 +1,6 @@
 #include <uls.h>
 
-static int cmp2(t_li *first, t_li *second, st_fl *fl)
+int cmp2(t_li *first, t_li *second, Flag *fl)
 {
     if (fl->c == 1 && fl->t == 1 && fl->S != 1)
     {
@@ -24,7 +24,7 @@ static int cmp2(t_li *first, t_li *second, st_fl *fl)
     return 0;
 }
 
-static int cmp1(t_li *first, t_li *second, st_fl *fl) {
+int cmp1(t_li *first, t_li *second, Flag *fl) {
     if (fl->u == 1 && fl->t == 1 && fl->S != 1)
     {
         if (first->info.st_atime == second->info.st_atime)
@@ -43,7 +43,7 @@ static int cmp1(t_li *first, t_li *second, st_fl *fl) {
     }
 }
 
-static int cmp(t_li *first, t_li *second, st_fl *fl)
+int cmp(t_li *first, t_li *second, Flag *fl)
 {
     if (fl->S == 1)
     {
@@ -71,27 +71,18 @@ static int cmp(t_li *first, t_li *second, st_fl *fl)
     return cmp1(first, second, fl);
 }
 
-int count_sizearr(t_li **disp)
-{
-	int i = 0;
-	while(disp[i])
-    {
-		i++;
-	}
-	return i;
-}
-
 void swap_li(t_li **bondOne, t_li **bondTwo)
 {
-    t_li *temp = *bondOne;
+    t_li *tmp = *bondOne;
     *bondOne = *bondTwo;
-    *bondTwo = temp;
+    *bondTwo = tmp;
 }
 
-void mx_sort(t_li ***disp, st_fl *fl)
+void mx_sort(t_li ***disp, Flag *fl)
 {
 	t_li **bond = *disp;
-	int size = count_sizearr(bond);
+	int size = 0;
+    for(;bond[size];size++);
 	for (int i = 0; i < size; i++) 
     {
 		for (int k = i + 1; k < size; k++) 
