@@ -11,8 +11,8 @@
 #include <sys/ioctl.h>
 #include <time.h>
 
-#define LS_COLOR_RED        "\x1b[31m"
-#define LS_COLOR_RESET      "\x1b[0m"
+#define RED        "\x1b[31m"
+#define STANDART      "\x1b[0m"
 
 typedef struct Flag
 {

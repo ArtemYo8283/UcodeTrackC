@@ -127,7 +127,7 @@ void print_sl(List *print)
 void print_name(List *args)
 {
     mx_printstr(args->name);
-    mx_printstr(LS_COLOR_RESET);
+    mx_printstr(STANDART);
 }
 
 int print_frst(List *args)
@@ -142,7 +142,7 @@ int print_frst(List *args)
     }
     else if (args->info.st_mode & S_IXOTH)
     {
-        mx_printstr(LS_COLOR_RED);
+        mx_printstr(RED);
     }
     else
     {
