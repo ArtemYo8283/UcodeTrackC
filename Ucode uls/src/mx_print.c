@@ -1,6 +1,6 @@
 #include <uls.h>
 
-void mx_get_user_name(t_li *print, int usr)
+void mx_get_user_name(List *print, int usr)
 {
     struct passwd *pw = getpwuid(print->info.st_uid);
     char *name = NULL;
@@ -21,7 +21,7 @@ void mx_get_user_name(t_li *print, int usr)
     free(name);
 }
 
-void mx_get_group_name(t_li *print, int group)
+void mx_get_group_name(List *print, int group)
 {
     struct group *grp = getgrgid(print->info.st_gid);
     char *name = grp ? mx_strdup(grp->gr_name) : mx_itoa(print->info.st_gid);
@@ -41,7 +41,7 @@ void mx_get_group_name(t_li *print, int group)
     free(name);
 }
 
-void print_link_and_color(t_li *print, Flag *fl)
+void print_link_and_color(List *print, Flag *fl)
 {
     if (fl->G == 1)
     {
@@ -58,7 +58,7 @@ void print_link_and_color(t_li *print, Flag *fl)
     }
 }
 
-void mx_edit_time(t_li *print, char *t, Flag *fl)
+void mx_edit_time(List *print, char *t, Flag *fl)
 {
     if (fl->T == 1)
     {
@@ -92,7 +92,7 @@ void mx_edit_time(t_li *print, char *t, Flag *fl)
     mx_printstr(" ");
 }
 
-void mx_print_lnk(t_li *print, t_size *size)
+void mx_print_lnk(List *print, Size *size)
 {
     char *res_itoa_now = mx_itoa(print->info.st_nlink);
     char *res_itoa_lnk = mx_itoa(size->lnk);
@@ -113,7 +113,7 @@ void mx_print_lnk(t_li *print, t_size *size)
     free(res_itoa_lnk);
 }
 
-void mx_print_symblink(t_li *print)
+void mx_print_symblink(List *print)
 {
     ssize_t buf_size = print->info.st_size == 0 ? 100 : print->info.st_size + 1;
     char *buf = mx_strnew(buf_size);
@@ -126,13 +126,13 @@ void mx_print_symblink(t_li *print)
     mx_strdel(&buf);
 }
 
-void print_name(t_li *args)
+void print_name(List *args)
 {
     mx_printstr(args->name);
     mx_printstr(LS_COLOR_RESET);
 }
 
-int print_frst(t_li *args)
+int print_frst(List *args)
 {
     if ((((args->info.st_mode) & S_IFMT) == S_IFDIR))
     {
@@ -156,7 +156,7 @@ int print_frst(t_li *args)
     return 1;
 }
 
-int print_sec(t_li *args)
+int print_sec(List *args)
 {
     if ((((args->info.st_mode) & S_IFMT) == S_IFBLK))
     {
@@ -180,7 +180,7 @@ int print_sec(t_li *args)
     return 1;
 }
 
-void mx_printstr_g(t_li *args)
+void mx_printstr_g(List *args)
 {
     if (print_frst(args) == 1 || print_sec(args) == 1)
     {
@@ -207,7 +207,7 @@ void mx_printstr_g(t_li *args)
     }
 }
 
-char mx_get_Flag_acl(t_li *print)
+char mx_get_Flag_acl(List *print)
 {
     acl_t tmp;
     if (listxattr(print->path, NULL, 0, XATTR_NOFOLLOW) > 0)
@@ -222,7 +222,7 @@ char mx_get_Flag_acl(t_li *print)
     return ' ';
 }
 
-char mx_check_per(t_li *print)
+char mx_check_per(List *print)
 {
     
     if ((((print->info.st_mode) & S_IFMT) == S_IFDIR))
@@ -266,7 +266,7 @@ char check_chmode2(char *chmod)
     return chmod[9] == '-' ? 'T' : 't';
 }
 
-void mx_print_per(t_li *print)
+void mx_print_per(List *print)
 {
     char chmod[12];
     chmod[0] = mx_check_per(print);
@@ -299,7 +299,7 @@ void print_spaces(int size)
     }
 }
 
-char *mx_get_minor(t_li *print)
+char *mx_get_minor(List *print)
 {
     int minor_num = (int)(print->info.st_rdev & 0xffffff);
     if (minor_num > 255) 
@@ -314,12 +314,12 @@ char *mx_get_minor(t_li *print)
     }
 }
 
-char *mx_get_major(t_li *print)
+char *mx_get_major(List *print)
 {
     return mx_itoa((int)(((unsigned int)print->info.st_rdev >> 24) & 0xff));
 }
 
-void print_duo_cases(t_li *print, t_size *size)
+void print_duo_cases(List *print, Size *size)
 {
     char *major = mx_get_major(print);
     char *minor = mx_get_minor(print);
@@ -347,7 +347,7 @@ void print_duo_cases(t_li *print, t_size *size)
     free(minor);
 }
 
-void mx_print_size(t_li *print, t_size *size)
+void mx_print_size(List *print, Size *size)
 {
     char *res_now = mx_itoa(print->info.st_size);
     char *res_size = mx_itoa(size->size);
@@ -368,19 +368,19 @@ void mx_print_size(t_li *print, t_size *size)
     free(res_size);
 }
 
-char *check_grp(t_li *total)
+char *check_grp(List *total)
 {
     struct group *grp = getgrgid(total->info.st_gid);
     return grp ? mx_strdup(grp->gr_name) : mx_itoa(total->info.st_gid);
 }
 
-char *check_pw(t_li *total)
+char *check_pw(List *total)
 {
     struct passwd *pw = getpwuid(total->info.st_uid);
     return pw ? mx_strdup(pw->pw_name) : mx_itoa(total->info.st_uid);
 }
 
-void count_size(t_size *size, t_li *total)
+void count_size(Size *size, List *total)
 {
     char *name_grp = check_grp(total);
     char *name_pw = check_pw(total);
@@ -404,9 +404,9 @@ void count_size(t_size *size, t_li *total)
     free(name_pw);
 }
 
-void mx_long_out(t_li **names, Flag *fl, int flag)
+void mx_long_out(List **names, Flag *fl, int flag)
 {
-    t_size *size = malloc(sizeof(t_size));
+    Size *size = malloc(sizeof(Size));
     int blk_size = 0;
     size->lnk = 0;
     size->size = 0;

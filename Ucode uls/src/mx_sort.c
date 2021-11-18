@@ -1,6 +1,6 @@
 #include <uls.h>
 
-int mx_comparer(t_li *first, t_li *second, Flag *fl)
+int mx_comparer(List *first, List *second, Flag *fl)
 {
     if (fl->S == 1)
     {
@@ -62,9 +62,9 @@ int mx_comparer(t_li *first, t_li *second, Flag *fl)
     }
 }
 
-void mx_sort(t_li ***disp, Flag *fl)
+void mx_sort(List ***disp, Flag *fl)
 {
-	t_li **bond = *disp;
+	List **bond = *disp;
 	int size = 0;
     while(bond[size])
     {
@@ -78,14 +78,14 @@ void mx_sort(t_li ***disp, Flag *fl)
             {
                 if (mx_strcmp(bond[i]->name, bond[k]->name) == 1)
                 {
-                    t_li *tmp = bond[i];
+                    List *tmp = bond[i];
                     bond[i] = bond[k];
                     bond[k] = tmp;
                 }
             }
             else if (mx_comparer(bond[i], bond[k], fl) == fl->r)
             {
-                t_li *tmp = bond[i];
+                List *tmp = bond[i];
                 bond[i] = bond[k];
                 bond[k] = tmp;
 			}

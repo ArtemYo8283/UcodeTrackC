@@ -17,55 +17,41 @@ void mx_join(char **res, char *s2)
     *res = newstr;
 }
 
-t_li *create_Flag_node(t_li *arg)
+List *create_Flag_node(List *arg)
 {
-    t_li *node = (t_li *)malloc(sizeof (t_li));
+    List *node = (List *)malloc(sizeof (List));
     node->name = mx_strdup(arg->name);
     node->path = mx_strdup(arg->path);
-    if (arg->err)
-    {
-        node->err = mx_strdup(arg->err);
-    }
-    else 
-    {
-        node->err = NULL;
-    }
+    node->err = arg->err ? mx_strdup(arg->err) : NULL;
     lstat(node->path, &(node->info));
-    if (arg->open != NULL)
-    {
-        node->open = arg->open;
-    }
-    else 
-    {
-        node->open = NULL;
-    }
+    node->open = arg->open != NULL ? arg->open : NULL;
     return node;
 }
 
-void create_fde(t_li ***Flags, t_li ***dirs, t_li ***errors, t_li ***args)
+void create_fde(List ***Flags, List ***dirs, List ***errors, List ***args)
 {
     int j = 0;
     int nDir = 0;
     int nErr = 0;
     for (int i = 0; (*args)[i] != NULL; i++)
     {
-        ((*args)[i]->err == NULL) ?  (((((*args)[i]->info.st_mode) & S_IFMT) != S_IFDIR)) ? j++ : nDir++ : nErr++;
+        ((*args)[i]->err == NULL) ? (((((*args)[i]->info.st_mode) & S_IFMT) != S_IFDIR)) ? j++ : nDir++ : nErr++;
     }
     if (j > 0)
     {
-        *Flags = malloc((j + 1) * sizeof(t_li *));
+        *Flags = malloc((j + 1) * sizeof(List *));
     }
     if (nDir > 0)
     {
-        *dirs = malloc((nDir + 1) * sizeof(t_li *));
+        *dirs = malloc((nDir + 1) * sizeof(List *));
     }
     if (nErr > 0)
     {
-        *errors = malloc((nErr + 1) * sizeof(t_li *));
+        *errors = malloc((nErr + 1) * sizeof(List *));
     }
 }
 
-void fdir(t_li **args, s_type *num, t_li ***Flags, t_li ***dirs)
+void fdir(List **args, Type *num, List ***Flags, List ***dirs)
 {
     
     if ((((((*args)->info.st_mode)) & S_IFMT) != S_IFDIR))
@@ -80,12 +66,12 @@ void fdir(t_li **args, s_type *num, t_li ***Flags, t_li ***dirs)
     }
 }
 
-t_li **mx_get_Flags(t_li ***args, Flag *fl)
+List **mx_get_Flags(List ***args, Flag *fl)
 {
-    t_li **Flags = NULL;
-    t_li **dirs = NULL;
-    t_li **errors = NULL;
-    s_type *num = malloc(sizeof(s_type));
+    List **Flags = NULL;
+    List **dirs = NULL;
+    List **errors = NULL;
+    Type *num = malloc(sizeof(Type));
     num->n_d = 0;
     num->n_e = 0;
     num->n_f = 0;
@@ -117,10 +103,10 @@ int check_a(char *name, Flag *fl)
     return fl->A != 1 || mx_strcmp(name, ".") == 0 || mx_strcmp(name, "..") == 0 ? 0 : 1;
 }
 
-int count_read(t_li **arg, Flag *fl)
+int count_read(List **arg, Flag *fl)
 {
     int c = 0;
-    t_li *args = *arg;
+    List *args = *arg;
     DIR *dptr;
     struct dirent *ds;
     if (((((args->info.st_mode)) & S_IFMT) == S_IFDIR) || (((args->info.st_mode) & S_IFMT) == S_IFLNK))
@@ -146,9 +132,9 @@ int count_read(t_li **arg, Flag *fl)
     return c;
 }
 
-t_li *create_he_node(char *name, char *path)
+List *create_he_node(char *name, char *path)
 {
-    t_li *node = (t_li *)malloc(sizeof(t_li));
+    List *node = (List *)malloc(sizeof(List));
     node->name = mx_strdup(name);
     node->path = mx_strdup(path);
     mx_join(&node->path, "/");
@@ -162,7 +148,7 @@ t_li *create_he_node(char *name, char *path)
     return node;
 }
 
-void open_dir(t_li ***args, Flag *fl)
+void open_dir(List ***args, Flag *fl)
 {
     DIR *dptr;
     struct dirent *ds;
@@ -172,7 +158,7 @@ void open_dir(t_li ***args, Flag *fl)
         c = count_read(&(*args)[i], fl);
         if (c > 0)
         {
-            (*args)[i]->open = malloc((c + 1) * sizeof(t_li *));
+            (*args)[i]->open = malloc((c + 1) * sizeof(List *));
             if ((dptr = opendir((*args)[i]->path)) != NULL)
             {
                 for (c = 0; (ds = readdir(dptr)) != NULL;)
@@ -190,9 +176,9 @@ void open_dir(t_li ***args, Flag *fl)
     mx_out_put_all(args, fl);
 }
 
-void mx_opendir(t_li ***args, Flag *fl)
+void mx_opendir(List ***args, Flag *fl)
 {
-    t_li **Flags = mx_get_Flags(&(*args), fl);
+    List **Flags = mx_get_Flags(&(*args), fl);
 	if (Flags) 
     {
 		mx_out_put_menu(&Flags, fl, 0);
@@ -236,14 +222,14 @@ char **names(int argc, char **argv, int i, int *c)
     return names;
 }
 
-t_li **mx_get_names(int argc, char **argv, int i) 
+List **mx_get_names(int argc, char **argv, int i) 
 {
     int c = 0;
     char **name = names(argc, argv, i, &c);
-    t_li **args = malloc(c * sizeof(t_li *));
+    List **args = malloc(c * sizeof(List *));
     for(i = 0; name[i]; i++)
     {
-        t_li *tmp = (t_li *)malloc(1 * sizeof(t_li));
+        List *tmp = (List *)malloc(sizeof(List));
         tmp->name = mx_strdup(name[i]);
         tmp->path = mx_strdup(name[i]);
         tmp->err = NULL;

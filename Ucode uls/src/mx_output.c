@@ -1,6 +1,6 @@
 #include <uls.h>
 
-void out_put1(t_li **names, Flag *fl)
+void out_put1(List **names, Flag *fl)
 {
     for (int i = 0; names[i]; i++)
     {
@@ -8,7 +8,7 @@ void out_put1(t_li **names, Flag *fl)
         mx_printchar('\n');
     }
 }
-int max_len_names(t_li **names)
+int max_len_names(List **names)
 {
     int max = 0;
     for (int i = 0; names[i]; i++)
@@ -33,7 +33,7 @@ void mx_print_tab(int len, int maxlen)
     }
 }
 
-void printcols(t_li **names, int rows, int num, int maxlen)
+void printcols(List **names, int rows, int num, int maxlen)
 {
     for (int i = 0; i < rows; i++)
     {
@@ -52,7 +52,7 @@ void printcols(t_li **names, int rows, int num, int maxlen)
     }
 }
 
-void print_names(t_li **names, int maxlen, int wincol)
+void print_names(List **names, int maxlen, int wincol)
 {
     int rows;
     int cols = (wincol / maxlen) != 0 ? wincol / maxlen : 1;
@@ -89,7 +89,7 @@ void print_names(t_li **names, int maxlen, int wincol)
     mx_printchar('\n');
 }
 
-void mx_output_c(t_li **names)
+void mx_output_c(List **names)
 {
     struct winsize win;
     if (names)
@@ -100,7 +100,7 @@ void mx_output_c(t_li **names)
     }
 }
 
-void mx_out_put_menu(t_li ***names, Flag *fl, int flag)
+void mx_out_put_menu(List ***names, Flag *fl, int flag)
 {
     if (**names != NULL)
     {
@@ -137,7 +137,7 @@ void mx_out_put_menu(t_li ***names, Flag *fl, int flag)
     }
 }
 
-void outputerropen(t_li **args, Flag *fl)
+void outputerropen(List **args, Flag *fl)
 {
     if ((*args)->open != NULL)
     {
@@ -162,7 +162,7 @@ void outputerropen(t_li **args, Flag *fl)
     }
 }
 
-void mx_out_put_all(t_li ***args, Flag *fl) 
+void mx_out_put_all(List ***args, Flag *fl) 
 {
     if (*args)
     {
@@ -190,7 +190,7 @@ void mx_print_spaces_g(int len, int maxlen)
     }
 }
 
-void print_nameG(t_li **names, int maxlen, int wincol, Flag *fl)
+void print_nameG(List **names, int maxlen, int wincol, Flag *fl)
 {
     int cols = (wincol / maxlen) != 0 ? wincol / maxlen : 1;
     int num = 0;
@@ -261,7 +261,7 @@ void print_nameG(t_li **names, int maxlen, int wincol, Flag *fl)
     mx_printchar('\n');
 }
 
-void mx_output_g(t_li **names, Flag *fl)
+void mx_output_g(List **names, Flag *fl)
 {
     struct winsize win;
     if (names)
@@ -281,7 +281,7 @@ void mx_output_g(t_li **names, Flag *fl)
     }
 }
 
-void print_nameN(t_li **names, int wincol, Flag *fl)
+void print_nameN(List **names, int wincol, Flag *fl)
 {
     int len = 0;
     for (int i = 0; names[i]; i++)
@@ -309,7 +309,7 @@ void print_nameN(t_li **names, int wincol, Flag *fl)
     mx_printchar('\n');
 }
 
-void mx_output_m(t_li **names, Flag *fl)
+void mx_output_m(List **names, Flag *fl)
 {
     struct winsize win;
     if (names)
@@ -319,7 +319,7 @@ void mx_output_m(t_li **names, Flag *fl)
     }  
 }
 
-void printcols_xM(t_li **names, int rows, int cols, int maxlen)
+void printcols_xM(List **names, int rows, int cols, int maxlen)
 {
     int tmpcols = cols;
     for (int i = 0; i < rows; i++, cols += tmpcols)
@@ -339,7 +339,7 @@ void printcols_xM(t_li **names, int rows, int cols, int maxlen)
     }
 }
 
-void print_namesX(t_li **names, int maxlen, int wincol)
+void print_namesX(List **names, int maxlen, int wincol)
 {
     int cols = (wincol / maxlen) != 0 ? wincol / maxlen : 1;
     int num = 0;
@@ -374,7 +374,7 @@ void print_namesX(t_li **names, int maxlen, int wincol)
     mx_printchar('\n');
 }
 
-void mx_output_x(t_li **names) 
+void mx_output_x(List **names) 
 {
     struct winsize win;
     if (names)
