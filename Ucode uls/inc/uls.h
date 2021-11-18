@@ -14,16 +14,6 @@
 //!!
 #include <stdio.h>
 
-#define IS_BLK(mode) (((mode) & S_IFMT) == S_IFBLK)
-#define IS_CHR(mode) (((mode) & S_IFMT) == S_IFCHR)
-#define IS_DIR(mode) (((mode) & S_IFMT) == S_IFDIR)
-#define IS_LNK(mode) (((mode) & S_IFMT) == S_IFLNK)
-#define IS_SOCK(mode) (((mode) & S_IFMT) == S_IFSOCK)
-#define IS_FIFO(mode) (((mode) & S_IFMT) == S_IFIFO)
-#define IS_WHT(mode) (((mode) & S_IFMT) == S_IFWHT)
-#define IS_REG(mode) (((mode) & S_IFMT) == S_IFREG)
-#define IS_EXEC(mode) ((mode) & S_IXUSR)
-
 #define LS_COLOR_RED        "\x1b[31m"
 #define LS_COLOR_RESET      "\x1b[0m"
 
@@ -49,13 +39,13 @@ typedef struct Flag {
     int ex;
 }   Flag;
 
-typedef struct s_sz {
+typedef struct s_size {
     int lnk;
-    int sz;
+    int size;
     int group;
     int usr;
     bool is_dev;
-}   t_sz;
+}   t_size;
 
 typedef struct s_li {
     char *name;
@@ -81,10 +71,10 @@ void mx_print_tab(int len, int maxlen);
 void mx_del_arr_arr(t_li ***args);
 
 t_li **mx_get_names(int argc, char **argv, int i);
+t_li **mx_get_Flags(t_li ***args, Flag *fl);
 void mx_opendir(t_li ***names, Flag *fl);
 void mx_out_put_all(t_li ***args, Flag *fl);
 void mx_sort(t_li ***disp, Flag *fl);
-t_li **mx_get_Flags(t_li ***args, Flag *fl);
 // Output
 void mx_out_put_menu(t_li ***names, Flag *fl, int flag);
 void mx_out_err(t_li ***error, Flag *fl);
@@ -95,8 +85,7 @@ void mx_output_g(t_li **names, Flag *fl);
 void mx_long_out(t_li **names, Flag *fl, int flag);
 
 void mx_print_per(t_li *print);
-void mx_print_sz(t_li *print, t_sz *size);
+void mx_print_size(t_li *print, t_size *size);
 void mx_print_symblink(t_li *print);
-void mx_print_all(t_li *print, t_sz *size, Flag *fl);
 
 
