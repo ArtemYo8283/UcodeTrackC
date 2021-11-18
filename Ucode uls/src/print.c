@@ -1,10 +1,9 @@
 #include <uls.h>
 
-void mx_get_user_name(List *print, int usr)
+void get_username(List *print, int usr)
 {
     struct passwd *pw = getpwuid(print->info.st_uid);
-    char *name = NULL;
-    name = pw ? mx_strdup(pw->pw_name) : mx_itoa(print->info.st_uid);
+    char *name = pw ? mx_strdup(pw->pw_name) : mx_itoa(print->info.st_uid);
     if (mx_strlen(name) == usr)
     {
        mx_printstr(name);
@@ -21,7 +20,7 @@ void mx_get_user_name(List *print, int usr)
     free(name);
 }
 
-void mx_get_group_name(List *print, int group)
+void get_groupname(List *print, int group)
 {
     struct group *grp = getgrgid(print->info.st_gid);
     char *name = grp ? mx_strdup(grp->gr_name) : mx_itoa(print->info.st_gid);
@@ -38,19 +37,18 @@ void mx_get_group_name(List *print, int group)
         }
     }
     mx_printstr("  ");
-    free(name);
 }
 
-void print_link_and_color(List *print, Flag *fl)
+void color_link(List *print, Flag *flags)
 {
-    if (fl->G == 1)
+    if (flags->G == 1)
     {
-        mx_printstr_g(print);
+        printstr_in_color(print);
     }
     else if ((((print->info.st_mode) & S_IFMT) == S_IFLNK))
     {
         mx_printstr(print->name);
-        mx_print_symblink(print);
+        print_sl(print);
     }
     else
     {
@@ -58,9 +56,9 @@ void print_link_and_color(List *print, Flag *fl)
     }
 }
 
-void mx_edit_time(List *print, char *t, Flag *fl)
+void time_edit(List *print, char *t, Flag *flags)
 {
-    if (fl->T == 1)
+    if (flags->T == 1)
     {
         for (int i = 4; i < t[i]; i++)
         {
@@ -92,7 +90,7 @@ void mx_edit_time(List *print, char *t, Flag *fl)
     mx_printstr(" ");
 }
 
-void mx_print_lnk(List *print, Size *size)
+void print_link(List *print, Size *size)
 {
     char *res_itoa_now = mx_itoa(print->info.st_nlink);
     char *res_itoa_lnk = mx_itoa(size->lnk);
@@ -113,7 +111,7 @@ void mx_print_lnk(List *print, Size *size)
     free(res_itoa_lnk);
 }
 
-void mx_print_symblink(List *print)
+void print_sl(List *print)
 {
     ssize_t buf_size = print->info.st_size == 0 ? 100 : print->info.st_size + 1;
     char *buf = mx_strnew(buf_size);
@@ -137,22 +135,20 @@ int print_frst(List *args)
     if ((((args->info.st_mode) & S_IFMT) == S_IFDIR))
     {
         mx_printstr("\033[34m");
-        print_name(args);
     }
     else if ((((args->info.st_mode) & S_IFMT) == S_IFLNK))
     {
         mx_printstr("\033[35m");
-        print_name(args);
     }
     else if (args->info.st_mode & S_IXOTH)
     {
         mx_printstr(LS_COLOR_RED);
-        print_name(args); 
     }
     else
     {
         return 0;
     }
+    print_name(args); 
     return 1;
 }
 
@@ -161,26 +157,24 @@ int print_sec(List *args)
     if ((((args->info.st_mode) & S_IFMT) == S_IFBLK))
     {
         mx_printstr("\033[34;46m");
-        print_name(args);
     }
     else if ((((args->info.st_mode) & S_IFMT) == S_IFCHR))
     {
         mx_printstr("\033[34;43m");
-        print_name(args);
     }
     else if ((((args->info.st_mode) & S_IFMT) == S_IFSOCK))
     {
-        mx_printstr("\033[32m");
-        print_name(args); 
+        mx_printstr("\033[32m");   
     }
     else
     {
         return 0;
     }
+    print_name(args); 
     return 1;
 }
 
-void mx_printstr_g(List *args)
+void printstr_in_color(List *args)
 {
     if (print_frst(args) == 1 || print_sec(args) == 1)
     {
@@ -207,24 +201,23 @@ void mx_printstr_g(List *args)
     }
 }
 
-char mx_get_Flag_acl(List *print)
+char get_Flag_acl(List *print)
 {
-    acl_t tmp;
-    if (listxattr(print->path, NULL, 0, XATTR_NOFOLLOW) > 0)
-    {
-        return '@';
-    }
-    if ((tmp = acl_get_file(print->path, ACL_TYPE_EXTENDED)))
+    acl_t tmp = acl_get_file(print->path, ACL_TYPE_EXTENDED);
+    if (tmp)
     {
         acl_free(tmp);
         return '+';
     }
+    if (listxattr(print->path, NULL, 0, XATTR_NOFOLLOW) > 0)
+    {
+        return '@';
+    }
     return ' ';
 }
 
-char mx_check_per(List *print)
+char check_per(List *print)
 {
-    
     if ((((print->info.st_mode) & S_IFMT) == S_IFDIR))
     {
         return 'd';
@@ -256,20 +249,20 @@ char mx_check_per(List *print)
     return '-';
 }
 
-char check_chmode1(char chmod)
+char check_chmode_S(char chmod)
 {
     return chmod == '-' ? 'S' : 's';
 }
 
-char check_chmode2(char *chmod)
+char check_chmode_T(char *chmod)
 {
     return chmod[9] == '-' ? 'T' : 't';
 }
 
-void mx_print_per(List *print)
+void print_chmod(List *print)
 {
     char chmod[12];
-    chmod[0] = mx_check_per(print);
+    chmod[0] = check_per(print);
     chmod[1] = (S_IRUSR & print->info.st_mode) ? 'r' : '-';
     chmod[2] = (S_IWUSR & print->info.st_mode) ? 'w' : '-';
     chmod[3] = (S_IXUSR & print->info.st_mode) ? 'x' : '-';
@@ -279,11 +272,11 @@ void mx_print_per(List *print)
     chmod[7] = (S_IROTH & print->info.st_mode) ? 'r' : '-';
     chmod[8] = (S_IWOTH & print->info.st_mode) ? 'w' : '-';
     chmod[9] = (S_IXOTH & print->info.st_mode) ? 'x' : '-';
-    chmod[10] = mx_get_Flag_acl(print);
+    chmod[10] = get_Flag_acl(print);
     chmod[11] = '\0';
-    S_ISUID & print->info.st_mode ? chmod[3] = check_chmode1(chmod[3]) : 0;
-    S_ISGID & print->info.st_mode ? chmod[6] = check_chmode1(chmod[6]) : 0;
-    S_ISVTX & print->info.st_mode ? chmod[9] = check_chmode2(chmod) : 0;
+    S_ISUID & print->info.st_mode ? chmod[3] = check_chmode_S(chmod[3]) : 0;
+    S_ISGID & print->info.st_mode ? chmod[6] = check_chmode_S(chmod[6]) : 0;
+    S_ISVTX & print->info.st_mode ? chmod[9] = check_chmode_T(chmod) : 0;
     for (int i = 0; chmod[i]; i++)
     {
         mx_printchar(chmod[i]);
@@ -299,7 +292,7 @@ void print_spaces(int size)
     }
 }
 
-char *mx_get_minor(List *print)
+char *get_minor(List *print)
 {
     int minor_num = (int)(print->info.st_rdev & 0xffffff);
     if (minor_num > 255) 
@@ -314,15 +307,15 @@ char *mx_get_minor(List *print)
     }
 }
 
-char *mx_get_major(List *print)
+char *get_major(List *print)
 {
     return mx_itoa((int)(((unsigned int)print->info.st_rdev >> 24) & 0xff));
 }
 
 void print_duo_cases(List *print, Size *size)
 {
-    char *major = mx_get_major(print);
-    char *minor = mx_get_minor(print);
+    char *major = get_major(print);
+    char *minor = get_minor(print);
     if (size->is_dev == true)
     {
         if ((((((print->info.st_mode) & S_IFMT) == S_IFBLK) || ((print->info.st_mode) & S_IFMT) == S_IFCHR)))
@@ -347,7 +340,7 @@ void print_duo_cases(List *print, Size *size)
     free(minor);
 }
 
-void mx_print_size(List *print, Size *size)
+void print_size(List *print, Size *size)
 {
     char *res_now = mx_itoa(print->info.st_size);
     char *res_size = mx_itoa(size->size);
@@ -368,7 +361,7 @@ void mx_print_size(List *print, Size *size)
     free(res_size);
 }
 
-char *check_grp(List *total)
+char *check_group(List *total)
 {
     struct group *grp = getgrgid(total->info.st_gid);
     return grp ? mx_strdup(grp->gr_name) : mx_itoa(total->info.st_gid);
@@ -382,7 +375,7 @@ char *check_pw(List *total)
 
 void count_size(Size *size, List *total)
 {
-    char *name_grp = check_grp(total);
+    char *name_grp = check_group(total);
     char *name_pw = check_pw(total);
     if (size->lnk < total->info.st_nlink)
     {
@@ -404,7 +397,7 @@ void count_size(Size *size, List *total)
     free(name_pw);
 }
 
-void mx_long_out(List **names, Flag *fl, int flag)
+void long_output(List **names, Flag *flags, int flag)
 {
     Size *size = malloc(sizeof(Size));
     int blk_size = 0;
@@ -434,28 +427,28 @@ void mx_long_out(List **names, Flag *fl, int flag)
     }
     for (int i = 0; names[i]; i++)
     {
-        time_t *chtime = &names[i]->info.st_ctime, *atime = &names[i]->info.st_atime, *t = &names[i]->info.st_mtime;
-        mx_print_per(names[i]);
-        mx_print_lnk(names[i], size);
-        if ((fl->l == 1 && fl->g == 0) || (fl->o == 1 && fl->g == 0))
+        time_t *chtime = &names[i]->info.st_ctime, *atime = &names[i]->info.st_atime, *time = &names[i]->info.st_mtime;
+        print_chmod(names[i]);
+        print_link(names[i], size);
+        if ((flags->l == 1 && flags->g == 0) || (flags->o == 1 && flags->g == 0))
         {
-            mx_get_user_name(names[i], size->usr);
+            get_username(names[i], size->usr);
         }
-        if ((fl->l == 1 && fl->o == 0) || (fl->g == 1 && fl->o == 0))
+        if ((flags->l == 1 && flags->o == 0) || (flags->g == 1 && flags->o == 0))
         {
-            mx_get_group_name(names[i], size->group);
+            get_groupname(names[i], size->group);
         }
-        mx_print_size(names[i], size);
-        if (fl->u == 1)
+        print_size(names[i], size);
+        if (flags->u == 1)
         {
-            t = atime;
+            time = atime;
         }
-        if (fl->c == 1)
+        if (flags->c == 1)
         {
-            t = chtime;
+            time = chtime;
         }
-        mx_edit_time(names[i], ctime(t), fl);
-        print_link_and_color(names[i], fl);
+        time_edit(names[i], ctime(time), flags);
+        color_link(names[i], flags);
         mx_printchar('\n');
     }
     free(size);

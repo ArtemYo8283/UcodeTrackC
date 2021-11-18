@@ -3,14 +3,14 @@
 int main(int argc, char *argv[])
 {
     int count = 1;
-    Flag *fl = get_flags(argv, &count);
-    List **args = mx_get_names(argc, argv, count);
+    Flag *flags = Flag_grab_flags(argv, &count);
+    List **args = list_grab_names(argc, argv, count);
     if (args)
     {
-        mx_opendir(&args, fl);
+        openDirectory(&args, flags);
     }
-    free(fl);
-    fl = NULL;
+    free(flags);
+    flags = NULL;
     return 0;
 }
 

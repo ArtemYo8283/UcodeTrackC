@@ -29,12 +29,11 @@ typedef struct Flag
     int A;
     int force;
     int m;
-    int Flags;
     int G;
     int T;
     int g;
     int o;
-    int ex;
+    int Flags;
 }   Flag;
 
 typedef struct Size
@@ -62,31 +61,24 @@ typedef struct Type
     int n_e;
     int i;
 }   Type;
+Flag * Flag_grab_flags(char *argv[], int *i);
+void join_str(char **res, char *s2);
+void printstr_in_color(List *args);
+int Names_lenght_max(List **names);
+void print_tab(int len, int maxlen);
+List ** list_grab_names(int argc, char **argv, int i);
+List ** list_grab_flags(List ***args, Flag *flags);
+void openDirectory(List ***names, Flag *flags);
+void outputAll(List ***args, Flag *flags);
+void sorting(List ***disp, Flag *flags);
+void print_chmod(List *print);
+void print_size(List *print, Size *size);
+void print_sl(List *print);
+void output_menu(List ***names, Flag *flags, int flag);
+void flag_c_output(List **names);
+void flag_g_output(List **names, Flag *flags);
+void long_output(List **names, Flag *flags, int flag);
 
-Flag *get_flags(char *argv[], int *i);
 
-void mx_join(char **res, char *s2);
-void mx_printstr_g(List *args);
-int max_len_names(List **names);
-void mx_print_tab(int len, int maxlen);
-void mx_del_arr_arr(List ***args);
-
-List **mx_get_names(int argc, char **argv, int i);
-List **mx_get_Flags(List ***args, Flag *fl);
-void mx_opendir(List ***names, Flag *fl);
-void mx_out_put_all(List ***args, Flag *fl);
-void mx_sort(List ***disp, Flag *fl);
-// Output
-void mx_out_put_menu(List ***names, Flag *fl, int flag);
-void mx_out_err(List ***error, Flag *fl);
-void mx_output_x(List **names);
-void mx_output_c(List **names);
-void mx_output_m(List **names, Flag *fl);
-void mx_output_g(List **names, Flag *fl);
-void mx_long_out(List **names, Flag *fl, int flag);
-
-void mx_print_per(List *print);
-void mx_print_size(List *print, Size *size);
-void mx_print_symblink(List *print);
 
 
