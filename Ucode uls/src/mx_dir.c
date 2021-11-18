@@ -49,21 +49,7 @@ void create_fde(t_li ***Flags, t_li ***dirs, t_li ***errors, t_li ***args)
     int nErr = 0;
     for (int i = 0; (*args)[i] != NULL; i++)
     {
-        if ((*args)[i]->err == NULL)
-        {
-            (((((*args)[i]->info.st_mode) & S_IFMT) != S_IFDIR)) ? j++ : nDir++;
-             {
-                j++;
-            } 
-            else
-            {
-                nDir++;
-            }
-        } 
-        else
-        {
-            nErr++;
-        }
+        ((*args)[i]->err == NULL) ?  (((((*args)[i]->info.st_mode) & S_IFMT) != S_IFDIR)) ? j++ : nDir++ : nErr++;
     }
     if (j > 0)
     {
