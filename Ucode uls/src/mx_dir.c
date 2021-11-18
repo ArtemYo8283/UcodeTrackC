@@ -20,26 +20,11 @@ void mx_join(char **res, char *s2)
 t_li *create_Flag_node(t_li *arg)
 {
     t_li *node = (t_li *)malloc(sizeof (t_li));
-
     node->name = mx_strdup(arg->name);
     node->path = mx_strdup(arg->path);
-    if (arg->err)
-    {
-        node->err = mx_strdup(arg->err);
-    }
-    else 
-    {
-        node->err = NULL;
-    }
+    node->err = arg->err ? mx_strdup(arg->err) : NULL;
     lstat(node->path, &(node->info));
-    if (arg->open != NULL)
-    {
-        node->open = arg->open;
-    }
-    else 
-    {
-        node->open = NULL;
-    }
+    node->open = arg->open != NULL ? arg->open : NULL;
     return node;
 }
 
@@ -50,21 +35,7 @@ void create_fde(t_li ***Flags, t_li ***dirs, t_li ***errors, t_li ***args)
     int nErr = 0;
     for (int i = 0; (*args)[i] != NULL; i++)
     {
-        if ((*args)[i]->err == NULL)
-        {
-            if (!IS_DIR((*args)[i]->info.st_mode))
-            {
-                j++;
-            } 
-            else
-            {
-                nDir++;
-            }
-        } 
-        else
-        {
-            nErr++;
-        }
+        ((*args)[i]->err == NULL) ? (((((*args)[i]->info.st_mode) & S_IFMT) != S_IFDIR)) ? j++ : nDir++ : nErr++;
     }
     if (j > 0)
     {
@@ -82,7 +53,8 @@ void create_fde(t_li ***Flags, t_li ***dirs, t_li ***errors, t_li ***args)
 
 void fdir(t_li **args, s_type *num, t_li ***Flags, t_li ***dirs)
 {
-    if (!IS_DIR((*args)->info.st_mode))
+    
+    if ((((((*args)->info.st_mode)) & S_IFMT) != S_IFDIR))
     {
         (*Flags)[num->n_f++] = create_Flag_node((*args));
         (*Flags)[num->n_f] = NULL;
@@ -128,21 +100,16 @@ t_li **mx_get_Flags(t_li ***args, Flag *fl)
 
 int check_a(char *name, Flag *fl)
 {
-    if (fl->A != 1 || mx_strcmp(name, ".") == 0 || mx_strcmp(name, "..") == 0)
-    {
-        return 0;
-    }
-    return 1;
+    return fl->A != 1 || mx_strcmp(name, ".") == 0 || mx_strcmp(name, "..") == 0 ? 0 : 1;
 }
 
 int count_read(t_li **arg, Flag *fl)
 {
-    int count = 0;
+    int c = 0;
     t_li *args = *arg;
     DIR *dptr;
     struct dirent *ds;
-
-    if (IS_DIR(args->info.st_mode) || IS_LNK(args->info.st_mode))
+    if (((((args->info.st_mode)) & S_IFMT) == S_IFDIR) || (((args->info.st_mode) & S_IFMT) == S_IFLNK))
     {
         if ((dptr = opendir(args->path)) != NULL)
         {
@@ -150,7 +117,7 @@ int count_read(t_li **arg, Flag *fl)
             {
                 if (ds->d_name[0] != '.' || check_a(ds->d_name, fl) == 1)
                 {
-                    count++;
+                    c++;
                 }
             }
             closedir(dptr);
@@ -162,7 +129,7 @@ int count_read(t_li **arg, Flag *fl)
             return -1;
         }
     }
-    return count;
+    return c;
 }
 
 t_li *create_he_node(char *name, char *path)
@@ -185,24 +152,23 @@ void open_dir(t_li ***args, Flag *fl)
 {
     DIR *dptr;
     struct dirent *ds;
-    int count = 0;
-
+    int c = 0;
     for (int i = 0; (*args)[i] != NULL; i++)
     {
-        count = count_read(&(*args)[i], fl);
-        if (count > 0)
+        c = count_read(&(*args)[i], fl);
+        if (c > 0)
         {
-            (*args)[i]->open = malloc((count + 1) * sizeof(t_li *));
+            (*args)[i]->open = malloc((c + 1) * sizeof(t_li *));
             if ((dptr = opendir((*args)[i]->path)) != NULL)
             {
-                for (count = 0; (ds = readdir(dptr)) != NULL;)
+                for (c = 0; (ds = readdir(dptr)) != NULL;)
                 {
                     if (ds->d_name[0] != '.' || check_a(ds->d_name, fl) == 1)
                     {
-                        (*args)[i]->open[count++] = create_he_node(ds->d_name, (*args)[i]->path);
+                        (*args)[i]->open[c++] = create_he_node(ds->d_name, (*args)[i]->path);
                     }
                 }
-                (*args)[i]->open[count] = NULL;
+                (*args)[i]->open[c] = NULL;
                 closedir(dptr);
             }
         }
@@ -228,41 +194,13 @@ void mx_opendir(t_li ***args, Flag *fl)
     }
 }
 
-t_li *create_li_node(char *data)
-{
-    t_li *node = (t_li *)malloc(1 * sizeof(t_li));
-    node->name = mx_strdup(data);
-    node->path = mx_strdup(data);
-    node->err = NULL;
-    if (lstat(data, &(node->info)) == -1)
-    {
-        node->err = mx_strdup(strerror(errno));	
-    }
-    node->open = NULL;
-    return node;
-}
-
-t_li **create_list(char **name, int count)
-{
-    t_li **new = malloc(count * sizeof(t_li *));
-    int i = 0;
-    while(name[i])
-    {
-        new[i] = create_li_node(name[i]);
-        i++;
-    }
-    new[i] = NULL;
-    return new;
-}
-
-char **names(int argc, char **argv, int i, int *count)
+char **names(int argc, char **argv, int i, int *c)
 {
     int j = i;
     char **names = NULL;
-
-    if (i == argc)
+    if (j == argc)
     {
-        *count = 2;
+        *c = 2;
         names = malloc(2 * sizeof(char *));
         names[0] = mx_strdup(".");
         names[1] = NULL;
@@ -279,16 +217,30 @@ char **names(int argc, char **argv, int i, int *count)
             names[j] = mx_strdup(argv[i]);
         }
         names[j] = NULL;
-        *count = j + 1;
+        *c = j + 1;
     }
     return names;
 }
 
 t_li **mx_get_names(int argc, char **argv, int i) 
 {
-    int count = 0;
-    char **name = names(argc, argv, i, &count);
-    t_li **args = create_list(name, count);
+    int c = 0;
+    char **name = names(argc, argv, i, &c);
+    t_li **args = malloc(c * sizeof(t_li *));
+    for(i = 0; name[i]; i++)
+    {
+        t_li *tmp = (t_li *)malloc(1 * sizeof(t_li));
+        tmp->name = mx_strdup(name[i]);
+        tmp->path = mx_strdup(name[i]);
+        tmp->err = NULL;
+        if (lstat(name[i], &(tmp->info)) == -1)
+        {
+            tmp->err = mx_strdup(strerror(errno));	
+        }
+        tmp->open = NULL;
+        args[i] = tmp;
+    }
+    args[i] = NULL;
     return args;
 }
 

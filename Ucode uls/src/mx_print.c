@@ -3,28 +3,18 @@
 void mx_get_user_name(t_li *print, int usr)
 {
     struct passwd *pw = getpwuid(print->info.st_uid);
-    int counter = 0;
     char *name = NULL;
-    if (pw)
-    {
-        name = mx_strdup(pw->pw_name);
-    }
-    else
-    {
-        name = mx_itoa(print->info.st_uid);
-    }
+    name = pw ? mx_strdup(pw->pw_name) : mx_itoa(print->info.st_uid);
     if (mx_strlen(name) == usr)
     {
        mx_printstr(name);
     }
     else if (mx_strlen(name) < usr)
     {
-        counter = mx_strlen(name);
         mx_printstr(name);
-        while (counter != usr)
+        for (int i = mx_strlen(name); i != usr; i++)
         {
             mx_printchar(' ');
-            counter++;
         }
     }
     mx_printstr("  ");
@@ -34,28 +24,17 @@ void mx_get_user_name(t_li *print, int usr)
 void mx_get_group_name(t_li *print, int group)
 {
     struct group *grp = getgrgid(print->info.st_gid);
-    int counter = 0;
-    char *name = NULL;
-    if (grp)
-    {
-        name = mx_strdup(grp->gr_name);
-    }
-    else
-    {
-        name = mx_itoa(print->info.st_gid);
-    }
+    char *name = grp ? mx_strdup(grp->gr_name) : mx_itoa(print->info.st_gid);
     if (mx_strlen(name) == group)
     {
         mx_printstr(name);
     }
     else if (mx_strlen(name) < group)
     {
-        counter = mx_strlen(name);
         mx_printstr(name);
-        while (counter != group)
+        for (int i = mx_strlen(name); i != group; i++)
         {
             mx_printchar(' ');
-            counter++;
         }
     }
     mx_printstr("  ");
@@ -68,7 +47,7 @@ void print_link_and_color(t_li *print, Flag *fl)
     {
         mx_printstr_g(print);
     }
-    else if (IS_LNK(print->info.st_mode))
+    else if ((((print->info.st_mode) & S_IFMT) == S_IFLNK))
     {
         mx_printstr(print->name);
         mx_print_symblink(print);
@@ -113,9 +92,8 @@ void mx_edit_time(t_li *print, char *t, Flag *fl)
     mx_printstr(" ");
 }
 
-void mx_print_lnk(t_li *print, t_sz *size)
+void mx_print_lnk(t_li *print, t_size *size)
 {
-    int counter = 0;
     char *res_itoa_now = mx_itoa(print->info.st_nlink);
     char *res_itoa_lnk = mx_itoa(size->lnk);
     if (mx_strlen(res_itoa_now) == mx_strlen(res_itoa_lnk))
@@ -124,11 +102,9 @@ void mx_print_lnk(t_li *print, t_sz *size)
     }
     else if (mx_strlen(res_itoa_now) < mx_strlen(res_itoa_lnk))
     {
-        counter = mx_strlen(res_itoa_now);
-        while (counter != mx_strlen(res_itoa_lnk))
+        for (int i = mx_strlen(res_itoa_now); i != mx_strlen(res_itoa_lnk); i++)
         {
             mx_printchar(' ');
-            counter++;
         }
         mx_printint(print->info.st_nlink);
     }
@@ -139,47 +115,15 @@ void mx_print_lnk(t_li *print, t_sz *size)
 
 void mx_print_symblink(t_li *print)
 {
-    char *buf = NULL;
-    ssize_t nbytes = 0;
-    ssize_t buf_size = 0;
-    buf_size = print->info.st_size == 0 ? 100 : print->info.st_size + 1;
-    buf = mx_strnew(buf_size);
-    nbytes = readlink(print->path, buf, buf_size);
+    ssize_t buf_size = print->info.st_size == 0 ? 100 : print->info.st_size + 1;
+    char *buf = mx_strnew(buf_size);
+    ssize_t nbytes = readlink(print->path, buf, buf_size);
     mx_printstr(" -> ");
     if (nbytes >= 0)
     {
         mx_printstr(buf);
     }
     mx_strdel(&buf);
-}
-
-void mx_print_all(t_li *print, t_sz *size, Flag *fl)
-{
-    time_t *chtime = &print->info.st_ctime;
-    time_t *atime = &print->info.st_atime;
-    time_t *t = &print->info.st_mtime;
-    mx_print_per(print);
-    mx_print_lnk(print, size);
-    if ((fl->l == 1 && fl->g == 0) || (fl->o == 1 && fl->g == 0))
-    {
-        mx_get_user_name(print, size->usr);
-    }
-    if ((fl->l == 1 && fl->o == 0) || (fl->g == 1 && fl->o == 0))
-    {
-        mx_get_group_name(print, size->group);
-    }
-    mx_print_sz(print, size);
-    if (fl->u == 1)
-    {
-        t = atime;
-    }
-    if (fl->c == 1)
-    {
-        t = chtime;
-    }
-    mx_edit_time(print, ctime(t), fl);
-    print_link_and_color(print, fl);
-    mx_printchar('\n');
 }
 
 void print_name(t_li *args)
@@ -190,12 +134,12 @@ void print_name(t_li *args)
 
 int print_frst(t_li *args)
 {
-    if (IS_DIR(args->info.st_mode))
+    if ((((args->info.st_mode) & S_IFMT) == S_IFDIR))
     {
         mx_printstr("\033[34m");
         print_name(args);
     }
-    else if (IS_LNK(args->info.st_mode))
+    else if ((((args->info.st_mode) & S_IFMT) == S_IFLNK))
     {
         mx_printstr("\033[35m");
         print_name(args);
@@ -214,17 +158,17 @@ int print_frst(t_li *args)
 
 int print_sec(t_li *args)
 {
-    if (IS_BLK(args->info.st_mode))
+    if ((((args->info.st_mode) & S_IFMT) == S_IFBLK))
     {
         mx_printstr("\033[34;46m");
         print_name(args);
     }
-    else if (IS_CHR(args->info.st_mode))
+    else if ((((args->info.st_mode) & S_IFMT) == S_IFCHR))
     {
         mx_printstr("\033[34;43m");
         print_name(args);
     }
-    else if (IS_SOCK(args->info.st_mode))
+    else if ((((args->info.st_mode) & S_IFMT) == S_IFSOCK))
     {
         mx_printstr("\033[32m");
         print_name(args); 
@@ -242,17 +186,17 @@ void mx_printstr_g(t_li *args)
     {
         return;
     }
-    else if (IS_FIFO(args->info.st_mode))
+    else if ((((args->info.st_mode) & S_IFMT) == S_IFIFO))
     {
         mx_printstr("\033[33m");
         print_name(args);
     }
-    else if (IS_WHT(args->info.st_mode))
+    else if ((((args->info.st_mode)& S_IFMT) == S_IFWHT))
     {
         mx_printstr("\033[36m");
         print_name(args);
     }
-    else if (IS_EXEC(args->info.st_mode))
+    else if (((args->info.st_mode) & S_IXUSR))
     {
         mx_printstr("\033[31m");
         print_name(args);
@@ -280,31 +224,32 @@ char mx_get_Flag_acl(t_li *print)
 
 char mx_check_per(t_li *print)
 {
-    if (IS_DIR(print->info.st_mode))
+    
+    if ((((print->info.st_mode) & S_IFMT) == S_IFDIR))
     {
         return 'd';
     }
-    else if (IS_LNK(print->info.st_mode))
+    else if ((((print->info.st_mode) & S_IFMT) == S_IFLNK))
     {
         return 'l';
     }
-    else if (IS_BLK(print->info.st_mode))
+    else if ((((print->info.st_mode) & S_IFMT) == S_IFBLK))
     {
         return 'b';
     }
-    else if (IS_CHR(print->info.st_mode))
+    else if ((((print->info.st_mode) & S_IFMT) == S_IFCHR))
     {
         return 'c';
     }
-    else if (IS_FIFO(print->info.st_mode))
+    else if ((((print->info.st_mode) & S_IFMT) == S_IFIFO))
     {
         return 'p';
     }
-    else if (IS_SOCK(print->info.st_mode))
+    else if ((((print->info.st_mode) & S_IFMT) == S_IFSOCK))
     {
         return 's';
     }
-    else if (IS_WHT(print->info.st_mode))
+    else if ((((print->info.st_mode) & S_IFMT) == S_IFWHT))
     {
         return 'w';
     }
@@ -313,26 +258,12 @@ char mx_check_per(t_li *print)
 
 char check_chmode1(char chmod)
 {
-    if (chmod == '-')
-    {
-        return chmod = 'S';
-    }
-    else
-    {
-        return chmod = 's';
-    }
+    return chmod == '-' ? 'S' : 's';
 }
 
 char check_chmode2(char *chmod)
 {
-    if (chmod[9] == '-')
-    {
-        return chmod[9] = 'T';
-    }
-    else
-    {
-        return chmod[9] = 't';
-    }
+    return chmod[9] == '-' ? 'T' : 't';
 }
 
 void mx_print_per(t_li *print)
@@ -362,25 +293,25 @@ void mx_print_per(t_li *print)
 
 void print_spaces(int size)
 {
-    for(int i = 0; i <= size; i++)
+    while(size-- >= 0)
     {
         mx_printchar(' ');
     }
 }
 
-char *minor_to_hex(char *minor)
-{
-    char *hex_minor = mx_strdup("0x00000000");
-    mx_strcpy(hex_minor + (10 - mx_strlen(minor)), minor);
-    return hex_minor;
-}
-
 char *mx_get_minor(t_li *print)
 {
     int minor_num = (int)(print->info.st_rdev & 0xffffff);
-    char *minor = NULL;
-    minor = (minor_num > 255) ? minor_to_hex(mx_nbr_to_hex(minor_num)) : mx_itoa(minor_num);
-    return minor;
+    if (minor_num > 255) 
+    { 
+        char *hex_minor = mx_strdup("0x00000000");
+        mx_strcpy(hex_minor + (10 - mx_strlen(mx_nbr_to_hex(minor_num))), mx_nbr_to_hex(minor_num));
+        return hex_minor;
+    }
+    else
+    { 
+        return mx_itoa(minor_num);
+    }
 }
 
 char *mx_get_major(t_li *print)
@@ -388,13 +319,13 @@ char *mx_get_major(t_li *print)
     return mx_itoa((int)(((unsigned int)print->info.st_rdev >> 24) & 0xff));
 }
 
-void print_duo_cases(t_li *print, t_sz *size)
+void print_duo_cases(t_li *print, t_size *size)
 {
     char *major = mx_get_major(print);
     char *minor = mx_get_minor(print);
     if (size->is_dev == true)
     {
-        if (IS_BLK(print->info.st_mode) || IS_CHR(print->info.st_mode))
+        if ((((((print->info.st_mode) & S_IFMT) == S_IFBLK) || ((print->info.st_mode) & S_IFMT) == S_IFCHR)))
         {
             print_spaces(2 - mx_strlen(major));
             mx_printstr(major);
@@ -416,60 +347,40 @@ void print_duo_cases(t_li *print, t_sz *size)
     free(minor);
 }
 
-void mx_print_sz(t_li *print, t_sz *size)
+void mx_print_size(t_li *print, t_size *size)
 {
     char *res_now = mx_itoa(print->info.st_size);
-    char *res_sz = mx_itoa(size->sz);
-    if (mx_strlen(res_now) == mx_strlen(res_sz))
+    char *res_size = mx_itoa(size->size);
+    if (mx_strlen(res_now) == mx_strlen(res_size))
     {
         print_duo_cases(print, size);
     }
-    else if (mx_strlen(res_now) < mx_strlen(res_sz))
+    else if (mx_strlen(res_now) < mx_strlen(res_size))
     {
-        int counter = mx_strlen(res_now);
-        while (counter != mx_strlen(res_sz))
+        for (int c = mx_strlen(res_now); c != mx_strlen(res_size); c++)
         {
             mx_printchar(' ');
-            counter++;
         }
         print_duo_cases(print, size);
     }
     mx_printchar(' ');
     free(res_now);
-    free(res_sz);
+    free(res_size);
 }
 
 char *check_grp(t_li *total)
 {
     struct group *grp = getgrgid(total->info.st_gid);
-    char *name = NULL;
-    if (grp)
-    {
-        name = mx_strdup(grp->gr_name);   
-    }
-    else
-    {
-        name = mx_itoa(total->info.st_gid);
-    }
-    return name;
+    return grp ? mx_strdup(grp->gr_name) : mx_itoa(total->info.st_gid);
 }
 
 char *check_pw(t_li *total)
 {
     struct passwd *pw = getpwuid(total->info.st_uid);
-    char *name = NULL;
-    if (pw)
-    {
-        name = mx_strdup(pw->pw_name);  
-    }
-    else
-    {
-        name = mx_itoa(total->info.st_uid);   
-    }
-    return name;
+    return pw ? mx_strdup(pw->pw_name) : mx_itoa(total->info.st_uid);
 }
 
-void count_size(t_sz *size, t_li *total)
+void count_size(t_size *size, t_li *total)
 {
     char *name_grp = check_grp(total);
     char *name_pw = check_pw(total);
@@ -477,9 +388,9 @@ void count_size(t_sz *size, t_li *total)
     {
         size->lnk = total->info.st_nlink;
     }
-    if (size->sz < total->info.st_size)
+    if (size->size < total->info.st_size)
     {
-        size->sz = total->info.st_size;
+        size->size = total->info.st_size;
     }
     if (size->group < mx_strlen(name_grp))
     {
@@ -493,42 +404,12 @@ void count_size(t_sz *size, t_li *total)
     free(name_pw);
 }
 
-bool mx_check_device(t_li **names, t_sz *size)
-{
-    for (int i = 0; names[i]; i++)
-    {
-        if (IS_BLK(names[i]->info.st_mode) || IS_CHR(names[i]->info.st_mode))
-        {
-            return size->is_dev = true;
-        }
-    }
-    return size->is_dev = false;
-}
-
-void mx_del_liarr(t_li ***args, t_li **dirs)
-{
-    t_li **del_arr = *args;
-    for (int i = 0; del_arr[i] != NULL; i++)
-    {
-        mx_strdel(&del_arr[i]->name);
-        mx_strdel(&del_arr[i]->path);
-        if (del_arr[i]->err)
-        {
-            mx_strdel(&del_arr[i]->err);
-        }
-        free(del_arr[i]);
-        del_arr[i] = NULL;
-    }
-    free(*args);
-    *args = dirs;
-}
-
 void mx_long_out(t_li **names, Flag *fl, int flag)
 {
-    t_sz *size = malloc(sizeof(t_sz));
+    t_size *size = malloc(sizeof(t_size));
     int blk_size = 0;
     size->lnk = 0;
-    size->sz = 0;
+    size->size = 0;
     size->group = 0;
     size->usr = 0;
     for (int i = 0; names[i]; i++)
@@ -542,10 +423,40 @@ void mx_long_out(t_li **names, Flag *fl, int flag)
         mx_printint(blk_size);
         mx_printchar('\n');
     }
-    mx_check_device(names, size);
     for (int i = 0; names[i]; i++)
     {
-        mx_print_all(names[i], size, fl);
+        size->is_dev = false;
+        if (((((names[i]->info.st_mode) & S_IFMT) == S_IFBLK) || ((names[i]->info.st_mode) & S_IFMT) == S_IFCHR))
+        {
+            size->is_dev = true;
+            break;
+        }         
+    }
+    for (int i = 0; names[i]; i++)
+    {
+        time_t *chtime = &names[i]->info.st_ctime, *atime = &names[i]->info.st_atime, *t = &names[i]->info.st_mtime;
+        mx_print_per(names[i]);
+        mx_print_lnk(names[i], size);
+        if ((fl->l == 1 && fl->g == 0) || (fl->o == 1 && fl->g == 0))
+        {
+            mx_get_user_name(names[i], size->usr);
+        }
+        if ((fl->l == 1 && fl->o == 0) || (fl->g == 1 && fl->o == 0))
+        {
+            mx_get_group_name(names[i], size->group);
+        }
+        mx_print_size(names[i], size);
+        if (fl->u == 1)
+        {
+            t = atime;
+        }
+        if (fl->c == 1)
+        {
+            t = chtime;
+        }
+        mx_edit_time(names[i], ctime(t), fl);
+        print_link_and_color(names[i], fl);
+        mx_printchar('\n');
     }
     free(size);
 }
