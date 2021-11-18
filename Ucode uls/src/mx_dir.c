@@ -51,8 +51,8 @@ void create_fde(t_li ***Flags, t_li ***dirs, t_li ***errors, t_li ***args)
     {
         if ((*args)[i]->err == NULL)
         {
-            if (((((*args)[i]->info.st_mode) & S_IFMT) != S_IFDIR))
-            {
+            (((((*args)[i]->info.st_mode) & S_IFMT) != S_IFDIR)) ? j++ : nDir++;
+             {
                 j++;
             } 
             else
