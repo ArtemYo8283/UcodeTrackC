@@ -183,7 +183,7 @@ void openDirectory(List ***args, Flag *flags)
 		output_menu(&Flags, flags, 0);
 		if (*args)
         {
-			mx_printchar('\n');
+			//mx_printchar('\n');
         }
 		flags->Flags = 1;
 	}

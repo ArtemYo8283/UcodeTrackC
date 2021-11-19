@@ -99,8 +99,6 @@ void flag_c_output(List **names)
     }
 }
 
-
-
 void outputerropen(List **args, Flag *flags)
 {
     if ((*args)->open != NULL)
@@ -118,11 +116,35 @@ void outputerropen(List **args, Flag *flags)
     }
     else if ((*args)->err != NULL)
     {
-        write(2, "uls: ", 6);
-        write(2, (*args)->path, mx_strlen((*args)->path));
-        write(2, ": ", 3);
-        write(2, (*args)->err, mx_strlen((*args)->err));
-        write(2, "\n", 2);
+        int slashes_pos = 0;
+        char *c = (*args)->path;
+        for(int i = 0; i < mx_strlen(c); i++)
+        {
+            if(c[i] == '/')
+            {
+                slashes_pos = i;
+            }
+        }
+        slashes_pos++;
+        if(mx_strcmp((*args)->err, "No such file or directory") == 0)
+        {
+            write(2, "uls: ", 6);
+            write(2, (*args)->path, mx_strlen((*args)->path));
+            write(2, ": ", 3);
+            write(2, (*args)->err, mx_strlen((*args)->err));
+            write(2, "\n", 2);
+        }
+        else
+        {
+            write(2, "uls: ", 6);
+            for(int i = slashes_pos; c[i] != '\0'; i++)
+            {
+                write(2, &c[i], 1);
+            }
+            write(2, ": ", 3);
+            write(2, (*args)->err, mx_strlen((*args)->err));
+            write(2, "\n", 2);
+        }
     }
 }
 
@@ -132,16 +154,7 @@ void outputAll(List ***args, Flag *flags)
     {
         for (int i = 0; (*args)[i] != NULL; i++)
         {
-            if (flags->Flags == 1)
-            {
-                ((*args)[i]->path[0] == '/' && (*args)[i]->path[1] == '/') ?  mx_printstr(&(*args)[i]->path[1]) : mx_printstr((*args)[i]->path);
-                mx_printstr(":\n");
-            }
             outputerropen(&(*args)[i], flags);
-            if (flags->Flags == 1 && (*args)[i+1])
-            {
-                mx_printchar('\n');
-            }
         }
     }
 }
