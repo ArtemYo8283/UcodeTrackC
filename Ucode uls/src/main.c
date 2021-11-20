@@ -13,4 +13,13 @@ int main(int argc, char *argv[])
     flags = NULL;
     return 0;
 }
+// int main()
+// {
+//     struct stat info;
+//     lstat("../../file/file1.txt", &info);
+//     if(((((info.st_mode) & S_IFMT) != S_IFDIR)))
+//     {
+//         mx_printstr("is dir");
+//     }
+// }
 

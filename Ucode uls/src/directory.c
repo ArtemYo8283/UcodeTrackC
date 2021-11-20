@@ -177,13 +177,13 @@ void open_dir(List ***args, Flag *flags)
 
 void openDirectory(List ***args, Flag *flags)
 {
-    List **Flags =  list_grab_flags(&(*args), flags);
+    List **Flags = list_grab_flags(&(*args), flags);
 	if (Flags) 
     {
 		output_menu(&Flags, flags, 0);
 		if (*args)
         {
-			//mx_printchar('\n');
+			mx_printchar('\n');
         }
 		flags->Flags = 1;
 	}

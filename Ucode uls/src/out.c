@@ -95,56 +95,7 @@ void flag_c_output(List **names)
     {
         int maxlen = Names_lenght_max(names);
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
-        (isatty(1)) ? print_names(names, maxlen, win.ws_col) :  print_names(names, maxlen, 80);
-    }
-}
-
-void outputerropen(List **args, Flag *flags)
-{
-    if ((*args)->open != NULL)
-    {
-        output_menu(&(*args)->open, flags, 1);
-        if (flags->R == 1)
-        {
-            flags->Flags = 1;
-            if ((*args)->open)
-            {
-                mx_printchar('\n');
-                openDirectory(&(*args)->open, flags);
-            }
-        }
-    }
-    else if ((*args)->err != NULL)
-    {
-        int slashes_pos = 0;
-        char *c = (*args)->path;
-        for(int i = 0; i < mx_strlen(c); i++)
-        {
-            if(c[i] == '/')
-            {
-                slashes_pos = i;
-            }
-        }
-        slashes_pos++;
-        if(mx_strcmp((*args)->err, "No such file or directory") == 0)
-        {
-            write(2, "uls: ", 6);
-            write(2, (*args)->path, mx_strlen((*args)->path));
-            write(2, ": ", 3);
-            write(2, (*args)->err, mx_strlen((*args)->err));
-            write(2, "\n", 2);
-        }
-        else
-        {
-            write(2, "uls: ", 6);
-            for(int i = slashes_pos; c[i] != '\0'; i++)
-            {
-                write(2, &c[i], 1);
-            }
-            write(2, ": ", 3);
-            write(2, (*args)->err, mx_strlen((*args)->err));
-            write(2, "\n", 2);
-        }
+        (isatty(1)) ? print_names(names, maxlen, win.ws_col) : print_names(names, maxlen, 80);
     }
 }
 
@@ -152,9 +103,77 @@ void outputAll(List ***args, Flag *flags)
 {
     if (*args)
     {
-        for (int i = 0; (*args)[i] != NULL; i++)
+        int count = 0;
+        int countDir = 0;
+        for (int i = 0; (*args)[i]; i++)
         {
-            outputerropen(&(*args)[i], flags);
+            count++;
+            if(((((((*args)[i]->info.st_mode) & S_IFMT) == S_IFDIR))))
+            {
+                countDir++;
+            }
+        }
+        for (int i = count - 1; i >= 0; i--)
+        {
+            if ((*args)[i]->err != NULL && mx_strcmp((*args)[i]->err , "Permission denied") != 0)
+            {
+                write(2, "uls: ", 6);
+                write(2, (*args)[i]->path, mx_strlen((*args)[i]->path));
+                write(2, ": ", 3);
+                write(2, (*args)[i]->err, mx_strlen((*args)[i]->err));
+                write(2, "\n", 2);
+            }
+        }
+        for (int i = count - 1; i >= 0; i--)
+        {
+            if ((*args)[i]->err != NULL && mx_strcmp((*args)[i]->err , "Permission denied") == 0)
+            {
+                if(count != 1)
+                {
+                    mx_printstr((*args)[i]->path);
+                    mx_printstr(":\n");
+                }
+                write(2, "uls: ", 6);
+                write(2, ": ", 3);
+                write(2, (*args)[i]->err, mx_strlen((*args)[i]->err));
+                write(2, "\n", 2);
+            }
+        }
+        for (int i = 0, j = 0; (*args)[i]; i++)
+        {
+            if(((((((*args)[i]->info.st_mode) & S_IFMT) == S_IFDIR))))
+            {
+                if (flags->Flags == 1)
+                {   
+                    if ((*args)[i]->path[0] == '/' && (*args)[i]->path[1] == '/') 
+                    {
+                        mx_printstr(&(*args)[i]->path[1]);
+                    }
+                    else
+                    { 
+                        mx_printstr((*args)[i]->path);
+                    }
+                    mx_printstr(":\n");
+                }
+                if ((*args)[i]->open != NULL)
+                {
+                    output_menu(&(*args)[i]->open, flags, 1);
+                    if (flags->R == 1)
+                    {
+                        flags->Flags = 1;
+                        if ((*args)[i]->open)
+                        {
+                            mx_printchar('\n');
+                            openDirectory(&(*args)[i]->open, flags);
+                        }
+                    }
+                }
+                if (flags->Flags == 1 && (*args)[i+1] && j+1 != countDir)
+                {
+                    mx_printchar('\n');
+                }
+                j++;
+            }
         }
     }
 }
@@ -372,6 +391,7 @@ void output_menu(List ***names, Flag *flags, int flag)
         }
         if (flags->force == 1)
         {
+            mx_printchar('!');
             output_names(*names, flags);
         }
         if (flags->G == 1 && flags->m != 1 && flags->l != 1 && flags->force != 1)

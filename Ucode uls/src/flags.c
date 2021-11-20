@@ -88,7 +88,7 @@ void add_flags(Flag **flags, char flag)
                 default:
                     write(2, "uls: illegal option -- ", 24);
                     write(2, &flag, 1);
-                    write(2, "\nusage: uls [-ACGRSTcfglmortux1] [file ...]\n", 45);
+                    write(2, "\nusage: uls [-ACGRST@acefhlmprtu1] [file ...]\n", 45);
                     free(*flags);
                     flags = NULL;
                     exit(1);
