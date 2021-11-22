@@ -117,11 +117,11 @@ void outputAll(List ***args, Flag *flags)
         {
             if ((*args)[i]->err != NULL && mx_strcmp((*args)[i]->err , "Permission denied") != 0)
             {
-                write(2, "uls: ", 6);
+                write(2, "uls: ", 5);
                 write(2, (*args)[i]->path, mx_strlen((*args)[i]->path));
-                write(2, ": ", 3);
+                write(2, ": ", 2);
                 write(2, (*args)[i]->err, mx_strlen((*args)[i]->err));
-                write(2, "\n", 2);
+                write(2, "\n", 1);
             }
         }
         for (int i = count - 1; i >= 0; i--)
@@ -133,10 +133,10 @@ void outputAll(List ***args, Flag *flags)
                     mx_printstr((*args)[i]->path);
                     mx_printstr(":\n");
                 }
-                write(2, "uls: ", 6);
-                write(2, ": ", 3);
+                write(2, "uls: ", 5);
+                write(2, ": ", 2);
                 write(2, (*args)[i]->err, mx_strlen((*args)[i]->err));
-                write(2, "\n", 2);
+                write(2, "\n", 1);
             }
         }
         for (int i = 0, j = 0; (*args)[i]; i++)

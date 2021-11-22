@@ -86,9 +86,9 @@ void add_flags(Flag **flags, char flag)
                 break;
 
                 default:
-                    write(2, "uls: illegal option -- ", 24);
+                    write(2, "uls: illegal option -- ", 23);
                     write(2, &flag, 1);
-                    write(2, "\nusage: uls [-ACGRST@acefhlmprtu1] [file ...]\n", 45);
+                    write(2, "\nusage: uls [-ACGRST@acefhlmprtu1] [file ...]\n", 46);
                     free(*flags);
                     flags = NULL;
                     exit(1);
