@@ -8,6 +8,10 @@
 #include <fcntl.h>
 #include <string.h>
 #define P_SIZE 8
+
+int mx_count_arr_el(char **arr);
+void mx_print_char_err(char c);
+void mx_printerr(const char *s);
 bool mx_isalpha(int i);
 long mx_atoi(const char *str);
 bool mx_isdigit(int c);
@@ -17,7 +21,7 @@ int mx_strncmp(const char *s1, const char *s2, int n);
 //Utils pack
 void mx_printchar(char c);
 void mx_print_unicode(wchar_t c);
-void mx_printstr(char *s);
+void mx_printstr(const char *s);
 void mx_print_strarr(char **arr, const char *delim);
 void mx_printint(int n);
 double mx_pow(double n, unsigned int pow);

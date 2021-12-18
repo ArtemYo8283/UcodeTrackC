@@ -1,5 +1,15 @@
 #include "pathfinder.h"
-
+int get_Namea(char **Names, char *Name)
+{
+    for (int i = 0; i < countIsl; i++)
+    {
+        if (!mx_strcmp(Names[i], Name)) 
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void create_routes(Bridge *bridges)
 {
