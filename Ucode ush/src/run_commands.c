@@ -26,10 +26,26 @@ void run_commands(char *info, Ush *ush)
     }
     if(id == -1)    
     {
-        mx_printerr("ush: command not found: ");
-        mx_printerr(info_parsed[0]);
-        mx_printerr("\n");
-        return;
+            pid_t pid = fork();
+            if(pid == 0)
+            {
+                int aboba = execvp(info_parsed[0], info_parsed);
+                if(aboba == -1) 
+                {
+                    mx_printerr("ush: command not found: ");
+                    mx_printerr(info_parsed[0]);
+                    mx_printerr("\n");
+                    exit(0);
+                    
+                }
+            }
+            else
+            {
+                
+                int status = 0;
+                waitpid(pid, &status, 0);
+                kill(pid, SIGKILL);
+            }
     }
     else
     {
@@ -60,7 +76,7 @@ void run_commands(char *info, Ush *ush)
                 break;
 
             case 6:
-
+                system(info);
                 break;
 
             case 7:

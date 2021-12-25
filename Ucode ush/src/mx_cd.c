@@ -1,37 +1,59 @@
 #include "ush.h"
 
-void mx_setenv_ush(char *arg, Ush *ush)
+int mx_find_flag(char *flags, char *str)
 {
-    if (mx_strlen(arg) != 1 && arg[mx_strlen(arg) - 1] == '/')
+    int flag = 0;
+    for (int i = 0; i < (int)strlen(flags); i++)
     {
-        arg[mx_strlen(arg) - 1] = '\0';
+        for (int j = 1; j < (int)strlen(str); j++)
+        {
+            if (str[j] == flags[i])
+            {
+                if (i + 1 > flag)
+                {
+                    flag = i + 1;
+                }
+                break;
+            }
+        }
     }
-    if (strcmp(arg, ush->pwd_l) != 0)
+    return flag;
+}
+
+void mx_setenv(char *str, Ush *ush)
+{
+    if (strlen(str) != 1 && str[strlen(str) - 1] == '/')
     {
-        ush->pwd_l = strdup(arg);
+        str[strlen(str) - 1] = '\0';
     }
-    setenv("PWD", arg, 1);
+    if (strcmp(str, ush->prev_pwd) != 0)
+    {
+        ush->prev_pwd = strdup(str);
+    }
+    setenv("PWD", str, 1);
 }
 
 int handle_path(char *path, int flag, Ush *ush)
 {
     char *tmp = strdup(path);
-    int link = mx_check_symlink(&tmp, flag, 1);
+    int link = mx_check_link(&tmp, flag, 1);
     if (flag == 2 && link == 1)
     {
-        fprintf(stderr, "cd: not a directory: %s\n", path);
+        mx_printerr("cd: not a directory: ");
+        mx_printerr(path);
+        mx_printerr("\n");
         return 1;
     }
     else if (strcmp(tmp, "-") == 0)
     {
         if (mx_getenv("OLDPWD") != NULL)
         {
-            mx_setenv_ush(mx_getenv("OLDPWD"), ush);
-            setenv("OLDPWD", ush->pwd_l, 1);
+            mx_setenv(mx_getenv("OLDPWD"), ush);
+            setenv("OLDPWD", ush->prev_pwd, 1);
         }
         else
         {
-            fprintf(stderr, "ush: cd: OLDPWD not set\n");
+            mx_printerr("ush: cd: OLDPWD not set\n");
             return 1;
         }
     }
@@ -50,8 +72,8 @@ int mx_cd(char **args, Ush *ush)
     if (len == 1 || (strcmp(args[1], "--") == 0 && len == 2))
     {
         char *arg = mx_getenv("HOME");
-        setenv("OLDPWD", ush->pwd_l, 1);
-        mx_setenv_ush(arg, ush);
+        setenv("OLDPWD", ush->prev_pwd, 1);
+        mx_setenv(arg, ush);
     }
     else
     {
@@ -64,7 +86,8 @@ int mx_cd(char **args, Ush *ush)
             }
             if (stop == 0 && args[i][0] == '-')
             {
-                if ((flag = mx_find_flag("Ps", args[i])) > 0)
+                flag = mx_find_flag("Ps", args[i]);
+                if (flag > 0)
                 {
                     continue;
                 }
@@ -77,35 +100,39 @@ int mx_cd(char **args, Ush *ush)
 
 int cd_print_error(char *path, Ush *ush)
 {
-    mx_setenv_ush(ush->pwd, ush);
-    mx_file_exist(path) == 0 ? fprintf(stderr, "cd: no such file or directory: %s\n", path) : fprintf(stderr, "cd: not a directory: %s\n", path);
+    mx_setenv(ush->pwd, ush);
+    if(mx_file_exist(path) == 0) 
+    { 
+        mx_printerr("cd: no such file or directory: ");
+        mx_printerr(path);
+        mx_printerr("\n");
+    }
+    else 
+    {
+        mx_printerr("cd: not a directory: ");
+        mx_printerr(path);
+        mx_printerr("\n");
+    }
     return 1;
 }
 
 char *previous_dir(Ush *ush, int flag)
 {
-    char *prev_dir = flag != 1 ? strdup(ush->pwd_l) : mx_getenv("PWD");
-    for (int i = mx_strlen(prev_dir) - 1; i >= 0; i--)
+    char *dir = flag != 1 ? strdup(ush->prev_pwd) : mx_getenv("PWD");
+    for (int i = strlen(dir) - 1; i >= 0; i--)
     {
-        if (prev_dir[i] == '/')
+        if (dir[i] == '/')
         {
-            prev_dir[i] = '\0';
+            dir[i] = '\0';
             break;
         }
-        prev_dir[i] = '\0';
+        dir[i] = '\0';
     }
-    if (mx_strlen(prev_dir) == 0)
+    if (strlen(dir) == 0)
     {
-        prev_dir = strdup("/");
+        dir = strdup("/");
     }
-    return prev_dir;
-}
-
-char *absolute_path(char *path, Ush *ush)
-{
-    char *tmp = mx_strjoin(ush->pwd_l, "/");
-    return strcmp(ush->pwd_l, "/") != 0 ? mx_strjoin(tmp, path) : mx_strjoin("/", path); 
-    
+    return dir;
 }
 
 int create_new_path(char **tokens, char *path, Ush *ush, int flag)
@@ -119,15 +146,15 @@ int create_new_path(char **tokens, char *path, Ush *ush, int flag)
         }
         else if (strcmp(tokens[i], ".") == 0)
         {
-            value = flag != 1 ? strdup(ush->pwd_l) : mx_getenv("PWD");
+            value = flag != 1 ? strdup(ush->prev_pwd) : mx_getenv("PWD");
         }
         else
         {
-            value = absolute_path(tokens[i], ush);
+            value = strcmp(ush->prev_pwd, "/") != 0 ? mx_strjoin(mx_strjoin(ush->prev_pwd, "/"), tokens[i]) : mx_strjoin("/", tokens[i]); 
         }
         if (chdir(value) != -1)
         {
-            mx_setenv_ush(value, ush);
+            mx_setenv(value, ush);
         }
         else
         {
@@ -141,11 +168,11 @@ int mx_make_path(char *path, Ush *ush, int flag)
 {
     char **tokens = mx_strsplit(path, '/');
     int ret = 0;
-    ush->pwd = strdup(ush->pwd_l);
+    ush->pwd = strdup(ush->prev_pwd);
     if (path[0] == '/')
     {
         chdir("/");
-        mx_setenv_ush("/", ush);
+        mx_setenv("/", ush);
     }
     if (tokens != NULL)
     {

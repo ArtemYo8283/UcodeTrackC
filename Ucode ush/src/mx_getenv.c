@@ -7,7 +7,6 @@ static char *homedir()
     {
         return mx_strdup(pw->pw_dir);
     }
-
     return mx_strdup(getenv("HOME"));
 }
 

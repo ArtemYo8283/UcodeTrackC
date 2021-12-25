@@ -1,6 +1,6 @@
 #include "ush.h"
 
-void pwd_err(char c, int *flag)
+void mx_pwd_err(char c, int *flag)
 {
     if (c != '\0')
     {
@@ -15,7 +15,7 @@ void pwd_err(char c, int *flag)
     *flag = 3;
 }
 
-void parse_pwd(char **args, int *flag)
+void mx_parse_pwd(char **args, int *flag)
 {
     int len = mx_count_arr_el(args);
     for (int i = 1, stop = 0; i < len; i++)
@@ -26,11 +26,11 @@ void parse_pwd(char **args, int *flag)
         }
         if (stop == 0 && args[i][0] == '-')
         {
-            for (int y =1; y < mx_strlen(args[i]); y++)
+            for (int j = 1; j < (int)strlen(args[i]); j++)
             {
-                if (args[i][y] != 'L' && args[i][y] != 'P')
+                if (args[i][j] != 'L' && args[i][j] != 'P')
                 {
-                    pwd_err(args[i][y], flag);
+                    mx_pwd_err(args[i][j], flag);
                     break;
                 }
             }
@@ -38,19 +38,20 @@ void parse_pwd(char **args, int *flag)
             {
                 break;
             }
-            if((*flag = mx_find_flag("LP", args[i])) > 0)
+            *flag = mx_find_flag("LP", args[i]);
+            if(*flag > 0)
             {
                 continue;
             }
         }
         else
         {
-            pwd_err('\0', flag);
+            mx_pwd_err('\0', flag);
         }
     }
 }
 
-char* path_symlink(char *arg)
+char* path_link(char *arg)
 {
     char buf[1024];
     ssize_t len = readlink(arg, buf, 1024);
@@ -62,17 +63,17 @@ char* path_symlink(char *arg)
     return buf[0] != '.' ? mx_strjoin("/", buf) : strdup(buf);
 }
 
-int mx_check_symlink(char **arg, int flag, int link)
+bool mx_check_link(char **arg, int flag, int link)
 {
     struct stat *st = malloc(sizeof(struct stat));
-    int is_link = 0;
+    bool is_link = false;
     lstat(*arg, st);
     if ((st->st_mode & S_IFMT) == S_IFLNK)
     {
-        is_link = 1;
+        is_link = true;
         if (flag == link)
         {
-            (*arg) = path_symlink(*arg);
+            (*arg) = path_link(*arg);
         }
     }
     if (st != NULL)
@@ -85,27 +86,23 @@ int mx_check_symlink(char **arg, int flag, int link)
 
 void mx_pwd(char **args, Ush *ush)
 {
-    int flag = 0, is_link = 0;
+    int flag = 0;
+    bool is_link = false;
     char *position = NULL;
-    parse_pwd(args, &flag);
+    mx_parse_pwd(args, &flag);
     if (flag != 2)
     {
-        position = strdup(ush->pwd_l);
+        position = strdup(ush->prev_pwd);
     }
     else
     {
         position = mx_getenv("PWD");
-        is_link = mx_check_symlink(&position, flag, 2);
+        is_link = mx_check_link(&position, flag, 2);
     }
     if (flag != 3)
     {
         mx_printstr(position);
         mx_printchar('\n');
     }
-    else
-    {
-        mx_strdel(&position);
-    }
-    mx_strdel(&position);
 }
 

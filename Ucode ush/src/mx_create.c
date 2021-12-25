@@ -1,29 +1,52 @@
 #include "ush.h"
 
-// t_com_sub* mx_create_com_sub()
-// {
-//     t_com_sub *com_sub = malloc(sizeof(t_com_sub));
-//     com_sub->back_first = 0;
-//     com_sub->back_first_index = 0;
-//     com_sub->back_end = 0;
-//     com_sub->back_end_index = 0;
-//     com_sub->space = 0;
-//     com_sub->space_first_index = 0;
-//     com_sub->space_end_index = 0;
-//     com_sub->tmp_str = NULL;
-//     com_sub->tmp_data = NULL;
-//     com_sub->cout_execute = NULL;
-//     com_sub->tmp_join = NULL;
-//     com_sub->status = 0;
-//     return com_sub;
-// }
-List* lst_create()
+char *ush_path(char **commands)
 {
-    List *lst = malloc(sizeof(List));
-    lst->data = NULL;
-    lst->next = NULL;
-    lst->prev = NULL;
-    return lst;
+    char *pwd = mx_getenv("PWD");
+    char *ush_path = mx_strstr(commands[0], "./") ? mx_replace_substr(commands[0], ".", pwd) : strdup(commands[0]);
+    return ush_path;
+}
+
+void mx_create_shell()
+{
+    char *shlv = mx_getenv("SHLVL");
+    char *shlvl = mx_itoa(mx_atoi(shlv) + 1);
+    extern char **environ;
+    char cwd[PATH_MAX];
+    if (getenv("HOME") == NULL)
+    {
+        setenv("HOME", mx_getenv("HOME"), 1);
+    }
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        setenv("PWD", cwd, 1);
+    }
+    if (getenv("OLDPWD") == NULL)
+    {
+        setenv("OLDPWD", mx_getenv("PWD"), 1);
+    }
+    if (getenv("PATH") == NULL)
+    {
+        setenv("PATH", mx_getenv("PATH"), 1);
+    }
+    if (getenv("SHLVL") == NULL)
+    {
+        setenv("SHLVL", "1", 1);
+    }
+    else
+    {
+        setenv("SHLVL", shlvl, 1);
+    }
+    setenv("_", "/usr/bin/env", 1);
+}
+
+List* list_create()
+{
+    List *list = malloc(sizeof(List));
+    list->data = NULL;
+    list->next = NULL;
+    list->prev = NULL;
+    return list;
 }
 
 Ush* mx_create_ush(char **argv)
@@ -31,72 +54,21 @@ Ush* mx_create_ush(char **argv)
     Ush *ush = malloc(sizeof(Ush));
     ush->command = NULL;
     ush->history = NULL;
-    ush->exit_status = -1;
-    ush->return_value = 0;
-    ush->exit_non_term = 0;
-    ush->pids = NULL;
-    ush->str_input = NULL;
-    ush->ush_path = find_ush_path(argv);
-    ush->history = lst_create();
-    ush->pwd_l = mx_getenv("PWD");
+    ush->ush_path = ush_path(argv);
+    ush->history =  list_create();
+    ush->prev_pwd = mx_getenv("PWD");
     return ush;
 }
 
-// Redirect *mx_create_redirect(int flag_redir)
-// {
-//     Redirect *redirect = malloc(sizeof(Redirect));
-//     redirect->err = mx_strnew(1000);
-//     redirect->out = mx_strnew(1000);
-//     redirect->flag = flag_redir;
-//     pipe(redirect->fd_return);
-//     pipe(redirect->fdout);
-//     pipe(redirect->fderr);
-//     return redirect;
-// }
-
-
-
-Input *iniInput()
+Input *mx_create_input()
 {
     Input *input = malloc(sizeof(Input));
-    input->len = 0;
+    input->length = 0;
     input->command = mx_strnew(1);
     input->ctrl_c = 0;
-    input->coursor_position = 0;
-    input->input_ch = '\0';
-    input->input_ch_arr = (char *)&input->input_ch;
+    input->position = 0;
+    input->symbol = '\0';
+    input->symbol_arr = (char *)&input->symbol;
     return input;
 }
-
-// void mx_parenRedirect(Redirect *redirect, int *return_)
-// {
-//     if (redirect->flag == 1)
-//     {
-//         mx_read_from_pipe(redirect->out, 1000, redirect->fdout);
-//     }
-//     mx_read_from_pipe(redirect->err, 1000, redirect->fderr);
-//     if (mx_strlen(redirect->err) != 0)
-//     {
-//         *return_ = 1;
-//         mx_printstr(redirect->err);
-//     }
-// }
-
-// void mx_child_redirect(Redirect *redirect)
-// {
-//     signal(SIGTSTP, SIG_DFL);
-//     if (redirect->flag == 1)
-//     {
-//         if (dup2(redirect->fdout[1], 1) == -1)
-//         {
-//             perror("dup2");
-//         }
-//         close(redirect->fdout[0]);
-//     }
-//     if (dup2(redirect->fderr[1], 2) == -1)
-//     {
-//         perror("dup2");
-//     }
-//     close(redirect->fderr[1]);
-// }
 

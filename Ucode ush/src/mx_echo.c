@@ -84,7 +84,7 @@ char *fill_parsed_str(char *str, int *flag_n, int flag)
 int echo_flag(char *arg, int *flag_n)
 {
     int flag = 1;
-    for (int i = 1; i < mx_strlen(arg); i++)
+    for (int i = 1; i < (int)strlen(arg); i++)
     {
         if (arg[i] == 'e' && flag != 2)
         {
@@ -139,9 +139,9 @@ char *mx_parse_echo(char **args, int *flag_n)
     return str;
 }
 
-void insert_chars(char **str, char sym, int index)
+void mx_insert_chars(char **str, char sym, int index)
 {
-    int len = mx_strlen(*str);
+    int len = strlen(*str);
     (*str) = realloc((*str), len + 2);
     for (; index < len + 1; index++)
     {
@@ -152,29 +152,29 @@ void insert_chars(char **str, char sym, int index)
     (*str)[index] = '\0';
 }
 
-char **insertin_arr(char c, char *str_input)
+char **mx_insertin_arr(char c, char *str_input)
 {
     char **arr = mx_strsplit(str_input, c);
-    insert_chars(&(arr[1]), c, 0);
-    insert_chars(&(arr[1]), c, mx_strlen(arr[1]));
+    mx_insert_chars(&(arr[1]), c, 0);
+    mx_insert_chars(&(arr[1]), c, strlen(arr[1]));
     return arr;
 }
 
-char **mx_split_echo(char *str_input, int check)
+char **mx_split_echo(char *input, int check)
 {
-    char *str_test = mx_strtrim(str_input);
-    free(str_input);
-    str_input = strdup(str_test);
-    char **arr = check == 2 ? insertin_arr('\'', str_input) : insertin_arr('\"', str_input);
-    char **e_f = mx_strsplit(arr[0], ' ');
-    int arr_el = mx_count_arr_el(e_f);
+    char *str_test = mx_strtrim(input);
+    free(input);
+    input = strdup(str_test);
+    char **arr = check == 2 ? mx_insertin_arr('\'', input) : mx_insertin_arr('\"', input);
+    char **str = mx_strsplit(arr[0], ' ');
+    int size = mx_count_arr_el(str);
     for (int i = 1; arr[i] != NULL; i++)
     {
-        e_f = (char **) realloc(e_f, 8 * (arr_el + 2));
-        e_f[arr_el++] = strdup(arr[i]);
-        e_f[arr_el] = NULL;
+        str = (char **) realloc(str, 8 * (size + 2));
+        str[size++] = strdup(arr[i]);
+        str[size] = NULL;
     }
-    return e_f;
+    return str;
 }
 
 int mx_check_echo(char **n)
@@ -193,11 +193,11 @@ int mx_check_echo(char **n)
             {
                 return 0;
             }
-            else if (n[i][0] == '\'' || n[i][mx_strlen(n[i]) - 1] == '\'')
+            else if (n[i][0] == '\'' || n[i][strlen(n[i]) - 1] == '\'')
             {
                 flag_one++;
             }
-            else if (n[i][0] == '\"' || n[i][mx_strlen(n[i]) - 1] == '\"')
+            else if (n[i][0] == '\"' || n[i][strlen(n[i]) - 1] == '\"')
             {
                 flag_two++;
             }

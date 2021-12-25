@@ -7,8 +7,9 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/stat.h>
 #define P_SIZE 8
-
+int mx_file_exist(char *path);
 int mx_count_arr_el(char **arr);
 void mx_print_char_err(char c);
 void mx_printerr(const char *s);
