@@ -68,13 +68,14 @@ void mx_pwd(char **args, Ush *ush);
 
 char *mx_input(Ush *ush);
 
+void mx_echo(char **args);
+
 char *mx_fill_command(Input *input);
 void mx_clear_str();
-
-void mx_echo(char **args);
 
 List *mx_addelem(List *history);
 void mx_sort_history(Ush *ush, char *tmp);
 char *mx_add_history(Input *input, int *flag, Ush *ush);
 List* lst_create();
-
+//Kostil ot kostyana
+void command_substitution(char *info);

@@ -140,7 +140,12 @@ int create_new_path(char **tokens, char *path, Ush *ush, int flag)
     for (int i = 0; tokens[i] != NULL; i++)
     {
         char *value = NULL;
-        if (strcmp(tokens[i], "..") == 0)
+        if(strcmp(tokens[i], "~") == 0)
+        {
+            value = mx_strjoin(value, "/Users/"); 
+            value = mx_strjoin(value, getlogin()); 
+        }
+        else if (strcmp(tokens[i], "..") == 0)
         {
             value = previous_dir(ush, flag);
         }

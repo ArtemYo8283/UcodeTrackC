@@ -1,4 +1,5 @@
 #include "libmx.h"
+
 char *mx_replace_substr(const char *str, const char *sub, const char *replace)
 {
 	int sum = mx_strlen(replace) - mx_strlen(sub);
