@@ -21,17 +21,16 @@ int main (int argc, char **argv)
         signal(SIGINT, newl);
         ush->command = mx_input(ush);
         // bool flag_cs = false;
-        //   for(int i = 0; i < mx_strlen(ush->command); i++)
-        //     {
-        //         if(ush->command[i] == '$')
-        //         {
-        //             flag_cs = true; 
-        //             break;
-        //         }
-        //     }
         if (ush->command != NULL && strlen(ush->command) > 0)
         {
-          
+            // for(int i = 0; i < mx_strlen(ush->command); i++)
+            // {
+            //     flag_cs = strcmp(&ush->command[i], "$") ? true : false;
+            // }
+            // if(flag_cs == true)
+            // {
+            //     command_substitution(ush->command);
+            // }
             if(strlen(ush->command) == 1 && ush->command[0] == ';')
             {
                 mx_printerr("ush: syntax error near unexpected token `;'\n");
@@ -66,10 +65,6 @@ int main (int argc, char **argv)
                 {         
                     run_program(ush->command);
                 }
-                // if(flag_cs == true)
-                // {
-                //     command_substitution(ush->command);
-                // }
                 else
                 {
                     run_commands(ush->command, ush);

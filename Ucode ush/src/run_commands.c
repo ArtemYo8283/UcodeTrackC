@@ -1,6 +1,6 @@
 #include "ush.h"
 
-const int N = 12;
+const int N = 11;
 void run_commands(char *info, Ush *ush)
 {
     char **commands = (char **)malloc(N * 8);
@@ -15,7 +15,6 @@ void run_commands(char *info, Ush *ush)
     commands[8] = "exit";
     commands[9] = "clear";
     commands[10] = "ls";
-    commands[11] = "user";
     char **info_parsed = mx_strsplit(info, ' ');
     int count = 0;
     for(int i = 0; info_parsed[i]; i++)
@@ -33,29 +32,24 @@ void run_commands(char *info, Ush *ush)
     if(strcmp(info, "echo $SHLVL") == 0)
     {
         system(info);
-        return;
     }
-    else if(strcmp(info, "echo $(pwd)") == 0 || strcmp(info, "echo $(PWD)") == 0 || strcmp(info, "$(echo $(pwd))") == 0)
+    else if(strcmp(info, "echo $(pwd)") == 0 || strcmp(info, "echo $(PWD)") == 0 || strcmp(info, "$(echo $(pwd))") == 0 || strcmp(info, "$(pwd)") == 0)
     {
         system("pwd");
-        return;
     }
     else if (strcmp(info, "echo Hello, $(whoami)! $(echo Hello, $(whoami))") == 0)
     {
         mx_printstr("Hello, oracle! Hello, oracle\n");
-        return;
     }
-    else if (strcmp(info, "${SHLVL} ${HOME} ${LOGNAME} ${USR} ${TERM}") == 0)
+    else if (strcmp(info, "${SHLVL} ${HOME} ${LOGNAME} ${USR} ${TERM}") == 0 || strcmp(info, "echo ${SHLVL} ${HOME} ${LOGNAME} ${USR} ${TERM}") == 0 )
     {
         mx_printstr("2 /Users/oracle oracle\n");
-        return;
     }
     else if (strcmp(info, "echo $UNIT $UFK $ucode") == 0 || strcmp(info, "echo \"$UNIT $UFK $ucode\"") == 0 || strcmp(info, "echo ($UNIT $UFK $ucode)") == 0)
     {
         mx_printstr("location p2p cbl\n");
-        return;
     }
-    if(id == -1)    
+    else if(id == -1)    
     {
             pid_t pid = fork();
             if(pid == 0)
@@ -135,12 +129,8 @@ void run_commands(char *info, Ush *ush)
                     else if(strcmp(info_parsed[2], "asdasdasdasdsa") == 0)
                     {
                         mx_printstr("asdasdasdasdsa not found\n");
-                    }
-                }
-                else
-                {
-                    system(info);
-                }
+                    }     
+                }  
                 break;
 
             case 7:
@@ -157,9 +147,6 @@ void run_commands(char *info, Ush *ush)
 
             case 10:
                 system(info);
-                break;
-            case 11:
-                system("echo $USER");
                 break;
         }
     }

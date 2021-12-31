@@ -73,75 +73,6 @@ char *fill_parsed_str(char *str, int *flag_n, int flag)
             parse_str[index++] = str[i];
         }
     }
-    // int a = 0;
-    // int b = 0;
-    // int t = 0;
-    // int n = 0;
-    // int v = 0;
-    // int f = 0;
-    // int r = 0;
-    // for (int i = 0; str[i] != '\0'; i++)
-    // {
-    //     if(str[i] == '\\' && str[i+1] == 'a')
-    //     {
-    //         a++;
-    //     }
-    //     if(str[i] == '\\' && str[i+1] == 'b')
-    //     {
-    //         b++;
-    //     }
-    //     if(str[i] == '\\' && str[i+1] == 't')
-    //     {
-    //         t++;
-    //     }
-    //     if(str[i] == '\\' && str[i+1] == 'n')
-    //     {
-    //         n++;
-    //     }
-    //     if(str[i] == '\\' && str[i+1] == 'v')
-    //     {
-    //         v++;
-    //     }
-    //     if(str[i] == '\\' && str[i+1] == 'f')
-    //     {
-    //         f++;
-    //     }
-    //     if(str[i] == '\\' && str[i+1] == 'r')
-    //     {
-    //         r++;
-    //     }
-    // }
-    // if (flag == 1)
-    // {
-    //     for(int i = 0; i < a; i++)
-    //     {
-    //         parse_str = mx_replace_substr(parse_str, "\\a", "\a");
-    //     }
-    //     for(int i = 0; i < b; i++)
-    //     {
-    //         parse_str = mx_replace_substr(parse_str, "\\b", "\b");
-    //     }
-    //     for(int i = 0; i < t; i++)
-    //     {
-    //         parse_str = mx_replace_substr(parse_str, "\\t", "\t");
-    //     }
-    //     for(int i = 0; i < n; i++)
-    //     {
-    //         parse_str = mx_replace_substr(parse_str, "\\n", "\n");
-    //     }
-    //     for(int i = 0; i < v; i++)
-    //     {
-    //         parse_str = mx_replace_substr(parse_str, "\\v", "\v");
-    //     }
-    //     for(int i = 0; i < f; i++)
-    //     {
-    //         parse_str = mx_replace_substr(parse_str, "\\f", "\f");
-    //     }
-    //     for(int i = 0; i < r; i++)
-    //     {
-    //         parse_str = mx_replace_substr(parse_str, "\\r", "\r");
-    //     }
-    // }
     parse_str[index] = '\0';
     if (quot_error(flag_n, flag_quot) == -1)
     {
@@ -285,11 +216,6 @@ int mx_check_echo(char **n)
 
 void mx_echo(char **args)
 {
-    // char *s1 = "           ksSH2RZSin         e6GCYFqG";
-    // char *s2 = "            ksSH2RZSin        e6GCYFqG";
-    //                       char *s3 = "        ";
-    //          nOeX      AqLMWqrsB3
-    //             nOeX      AqLMWqrsB3 
     int flag = 0;
     char *str = mx_parse_echo(args, &flag);
     if (str != NULL)
