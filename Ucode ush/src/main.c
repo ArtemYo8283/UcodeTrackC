@@ -20,6 +20,7 @@ int main (int argc, char **argv)
     {
         signal(SIGINT, newl);
         ush->command = mx_input(ush);
+        mx_printstr(ush->command);
         // bool flag_cs = false;
         if (ush->command != NULL && strlen(ush->command) > 0)
         {

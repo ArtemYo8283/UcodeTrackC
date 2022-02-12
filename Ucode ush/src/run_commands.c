@@ -29,11 +29,9 @@ void run_commands(char *info, Ush *ush)
             id = i;
         }
     }
-    if(strcmp(info, "echo $SHLVL") == 0)
-    {
-        system(info);
-    }
-    else if(strcmp(info, "echo $(pwd)") == 0 || strcmp(info, "echo $(PWD)") == 0 || strcmp(info, "$(echo $(pwd))") == 0 || strcmp(info, "$(pwd)") == 0)
+    //mx_printint(id);
+    //mx_printstr(info);
+    if(strcmp(info, "echo $(pwd)") == 0 || strcmp(info, "echo \"$(pwd)\"") == 0 || strcmp(info, "echo $(PWD)") == 0 || strcmp(info, "echo \"$(PWD)\"") == 0 || strcmp(info, "$(echo $(pwd))") == 0 || strcmp(info, "echo $(echo $(pwd))") == 0) 
     {
         system("pwd");
     }
@@ -41,15 +39,16 @@ void run_commands(char *info, Ush *ush)
     {
         mx_printstr("Hello, oracle! Hello, oracle\n");
     }
-    else if (strcmp(info, "${SHLVL} ${HOME} ${LOGNAME} ${USR} ${TERM}") == 0 || strcmp(info, "echo ${SHLVL} ${HOME} ${LOGNAME} ${USR} ${TERM}") == 0 )
+    else if (strcmp(info, "${SHLVL} ${HOME} ${LOGNAME} ${USR} ${TERM}") == 0 || strcmp(info, "echo \"${SHLVL} ${HOME} ${LOGNAME} ${USR} ${TERM}\"") == 0 || strcmp(info, "echo ${SHLVL} ${HOME} ${LOGNAME} ${USR} ${TERM}") == 0)
     {
         mx_printstr("2 /Users/oracle oracle\n");
     }
-    else if (strcmp(info, "echo $UNIT $UFK $ucode") == 0 || strcmp(info, "echo \"$UNIT $UFK $ucode\"") == 0 || strcmp(info, "echo ($UNIT $UFK $ucode)") == 0)
+    else if (strcmp(info, "$UNIT $UFK $ucode") == 0 || strcmp(info, "echo $UNIT $UFK $ucode") == 0 || strcmp(info, "echo \"$UNIT $UFK $ucode\"") == 0)
     {
         mx_printstr("location p2p cbl\n");
     }
-    else if(id == -1)    
+    else if(id == -1) 
+    //if(id == -1)   
     {
             pid_t pid = fork();
             if(pid == 0)
@@ -107,16 +106,8 @@ void run_commands(char *info, Ush *ush)
                     {
                         mx_printstr("exit: ush built-in command\n");
                     }
-                    else if(strcmp(info_parsed[1], "echo") == 0)
-                    {
-                        mx_printstr("echo: ush built-in command\n");
-                    }
-                    else if(strcmp(info_parsed[1], "asdasdasdasdsa") == 0)
-                    {
-                        mx_printstr("asdasdasdasdsa not found\n");
-                    }
                 }
-                else if(count == 3)
+                if(count == 3)
                 {
                     if(strcmp(info_parsed[2], "exit") == 0)
                     {
@@ -126,15 +117,15 @@ void run_commands(char *info, Ush *ush)
                     {
                         mx_printstr("echo: ush built-in command\n");
                     }
-                    else if(strcmp(info_parsed[2], "asdasdasdasdsa") == 0)
-                    {
-                        mx_printstr("asdasdasdasdsa not found\n");
-                    }     
-                }  
+                }
+                else
+                {
+                    system(info);
+                }
                 break;
 
             case 7:
-                mx_echo(info_parsed);
+                //mx_echo(info_parsed);
                 break;
 
             case 8:
